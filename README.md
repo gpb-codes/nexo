@@ -1,5 +1,7 @@
 # Nexo — Ecosistema personal
 
+Repositorio: https://github.com/gpb-codes/nexo
+
 Centro de operaciones personal que unifica segundo cerebro, tareas, proyectos, notas, contactos, fotos, capturas NFC/cámara, perfil, GitHub, Asistente IA con API key y voz.
 
 ## Estructura
