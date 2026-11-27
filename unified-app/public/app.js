@@ -48,6 +48,12 @@
       sidebar: $("sidebar"),
       sidebarOverlay: $("sidebarOverlay"),
       menuBtn: $("menuBtn"),
+      sidebarCollapseBtn: $("sidebarCollapseBtn"),
+      notificationsBtn: $("notificationsBtn"),
+      sessionIndicator: $("sessionIndicator"),
+      mobileMoreBtn: $("mobileMoreBtn"),
+      mobileMoreSheet: $("mobileMoreSheet"),
+      mobileMoreClose: $("mobileMoreClose"),
       pageTitle: $("pageTitle"),
       pageKicker: $("pageKicker"),
       heroSiteName: $("heroSiteName"),
@@ -71,6 +77,14 @@
       projectFilters: $("projectFilters"),
       projectList: $("projectList"),
       userAvatar: $("userAvatar"),
+      heroGreetingName: $("heroGreetingName"),
+      profileOrbitCanvas: $("profileOrbitCanvas"),
+      dashboardTaskList: $("dashboardTaskList"),
+      dashboardTaskCount: $("dashboardTaskCount"),
+      dashboardTaskProgress: $("dashboardTaskProgress"),
+      dashboardProjectList: $("dashboardProjectList"),
+      dashboardProjectCount: $("dashboardProjectCount"),
+      dashboardCreateProjectBtn: $("dashboardCreateProjectBtn"),
       welcomeName: $("welcomeName"),
       welcomeEmail: $("welcomeEmail"),
       statTasks: $("statTasks"),
@@ -98,6 +112,7 @@
       noteContent: $("noteContent"),
       addNoteBtn: $("addNoteBtn"),
       noteFilters: $("noteFilters"),
+      noteSearch: $("noteSearch"),
       notesList: $("notesList"),
       contactName: $("contactName"),
       contactPhone: $("contactPhone"),
@@ -107,6 +122,7 @@
       saveContactBtn: $("saveContactBtn"),
       resetContactBtn: $("resetContactBtn"),
       contactosList: $("contactosList"),
+      contactSearch: $("contactSearch"),
       contactosCount: $("contactosCount"),
       noteModal: $("noteModal"),
       noteModalClose: $("noteModalClose"),
@@ -120,6 +136,7 @@
       taskPriority: $("taskPriority"),
       addTaskBtn: $("addTaskBtn"),
       taskFilters: $("taskFilters"),
+      taskSearch: $("taskSearch"),
       taskList: $("taskList"),
       taskProgress: $("taskProgress"),
       taskModal: $("taskModal"),
@@ -177,6 +194,7 @@
 
     let currentUser = null;
     let allNotes = [];
+    let allContactNotes = [];
     let nfcReader = null;
     let nfcAbortController = null;
     let nfcCapture = null;
@@ -332,6 +350,7 @@
     }
 
     function showTab(name) {
+      if (els.mobileMoreSheet && !els.mobileMoreSheet.hidden) els.mobileMoreSheet.hidden = true;
       if (name === "grafo") import("/brain.js").catch(() => {});
       if (name !== "captura") {
         if (cameraStream || cameraCapture) resetCamera();
@@ -349,6 +368,29 @@
     });
     if (els.menuBtn) els.menuBtn.addEventListener("click", openSidebar);
     if (els.sidebarOverlay) els.sidebarOverlay.addEventListener("click", closeSidebar);
+    if (els.sidebarCollapseBtn) {
+      els.sidebarCollapseBtn.addEventListener("click", () => {
+        const collapsed = els.sidebar?.classList.toggle("collapsed");
+        document.querySelector(".main-shell")?.classList.toggle("sidebar-collapsed", !!collapsed);
+        els.sidebarCollapseBtn.setAttribute("aria-label", collapsed ? "Expandir menú" : "Contraer menú");
+      });
+    }
+    if (els.notificationsBtn) els.notificationsBtn.addEventListener("click", () => toast("Sin notificaciones nuevas.", "info"));
+    if (els.dashboardCreateProjectBtn) {
+      els.dashboardCreateProjectBtn.addEventListener("click", () => {
+        showTab("proyectos");
+        setTimeout(() => els.projectNameInput?.focus(), 120);
+      });
+    }
+    if (els.mobileMoreBtn) {
+      els.mobileMoreBtn.addEventListener("click", () => {
+        if (!els.mobileMoreSheet) return;
+        els.mobileMoreSheet.hidden = !els.mobileMoreSheet.hidden;
+      });
+    }
+    if (els.mobileMoreClose) {
+      els.mobileMoreClose.addEventListener("click", () => { if (els.mobileMoreSheet) els.mobileMoreSheet.hidden = true; });
+    }
 
     /* ---------------------------------------------------------------- auth */
     async function doRegister() {
@@ -424,16 +466,25 @@
       renderAvatar(avatarId, els.userAvatar, user.email);
       renderAvatar(avatarId, els.userAvatarSmall, user.email);
       if (els.sidebarAvatar) renderAvatar(avatarId, els.sidebarAvatar, user.email);
-      els.welcomeName.textContent = `Hola, ${user.displayName || user.name}`;
+      const visibleName = user.displayName || user.name;
+      if (els.heroGreetingName) els.heroGreetingName.textContent = visibleName;
+      els.welcomeName.textContent = visibleName;
       els.welcomeEmail.textContent = user.email;
+      if (els.sessionIndicator) els.sessionIndicator.setAttribute("aria-label", `Sesión activa: ${user.email}`);
       els.userNameTop.textContent = user.displayName || user.name;
       if (els.sidebarName) els.sidebarName.textContent = user.displayName || user.name;
       if (els.sidebarEmail) els.sidebarEmail.textContent = user.email;
       els.profileAvatar.innerHTML = `<img src="${avatarUrl(avatarId, user.email)}" alt="">`;
+      import("/profile-sphere.js")
+        .then((module) => module.mountProfileSphere(els.profileOrbitCanvas, avatarUrl(avatarId, user.email)))
+        .catch(() => {});
       els.profileName.textContent = user.name;
       els.profileEmail.textContent = user.email;
       els.displayName.value = user.displayName || user.name;
-      if (els.aiApiKey) els.aiApiKey.value = user.aiApiKey || "";
+      if (els.aiApiKey) {
+        els.aiApiKey.value = "";
+        els.aiApiKey.placeholder = user.aiApiKey ? "API key configurada · no se muestra" : "Ingresa tu API key...";
+      }
       if (els.aiModel) els.aiModel.value = user.aiModel || "";
       if (els.aiBaseUrl) els.aiBaseUrl.value = user.aiBaseUrl || "";
       els.infoName.textContent = user.name;
@@ -447,6 +498,9 @@
         renderAvatar(id, els.userAvatar, user.email);
         renderAvatar(id, els.userAvatarSmall, user.email);
         els.profileAvatar.innerHTML = `<img src="${avatarUrl(id, user.email)}" alt="">`;
+        import("/profile-sphere.js")
+          .then((module) => module.mountProfileSphere(els.profileOrbitCanvas, avatarUrl(id, user.email)))
+          .catch(() => {});
       });
 
       applyTheme(user.accent || "#8b5cf6");
@@ -522,13 +576,17 @@
         allTasks = data.tasks || [];
         renderTasks(allTasks);
         updateTaskCount(allTasks);
+        renderDashboard();
       } catch (e) { console.error(e); }
     }
 
     function renderTasks(tasks) {
       const filter = els.taskFilters?.querySelector(".filter-btn.active")?.dataset.filter || "todas";
       const sorted = sortTasks(tasks);
-      let filtered = sorted;
+      const query = (els.taskSearch?.value || "").toLowerCase().trim();
+      let filtered = query
+        ? sorted.filter(t => [t.title, t.category, t.priority, t.status].join(" ").toLowerCase().includes(query))
+        : sorted;
       if (filter === "pendiente") filtered = sorted.filter(t => t.status === "pendiente");
       if (filter === "completada") filtered = sorted.filter(t => t.status === "completada");
       if (filter === "alta") filtered = sorted.filter(t => t.priority === "alta");
@@ -694,6 +752,7 @@
         allProjects = data.projects || [];
         renderProjects(allProjects);
         updateProjectStats();
+        renderDashboard();
       } catch (e) { console.error(e); }
     }
 
@@ -765,6 +824,50 @@
     function updateProjectStats() {
       if (els.statProjects) {
         els.statProjects.textContent = allProjects.filter(p => p.status === "activo").length;
+      }
+    }
+
+    function renderDashboard() {
+      const pending = allTasks.filter(t => t.status === "pendiente");
+      const total = allTasks.length;
+      const completed = total - pending.length;
+      const percent = total ? Math.round((completed / total) * 100) : 0;
+      if (els.dashboardTaskCount) els.dashboardTaskCount.textContent = `${pending.length} pendientes`;
+      if (els.dashboardTaskProgress) els.dashboardTaskProgress.style.width = `${percent}%`;
+      if (els.dashboardTaskList) {
+        if (!pending.length) {
+          els.dashboardTaskList.innerHTML = '<p class="ui-empty">Sin tareas pendientes.</p>';
+        } else {
+          els.dashboardTaskList.innerHTML = pending.slice(0, 4).map(t => `
+            <div class="dash-list-item">
+              <button class="dash-check" type="button" data-task-id="${t.id}" aria-label="Completar ${escapeHtml(t.title)}"></button>
+              <strong>${escapeHtml(t.title)}</strong>
+              <small>${escapeHtml(t.priority)}${t.due_date ? ` · ${escapeHtml(t.due_date)}` : ""}</small>
+            </div>
+          `).join("");
+          els.dashboardTaskList.querySelectorAll("[data-task-id]").forEach(btn => {
+            btn.addEventListener("click", () => {
+              const task = allTasks.find(t => t.id === btn.dataset.taskId);
+              if (task) toggleTask(task.id, task.status);
+            });
+          });
+        }
+      }
+
+      const active = allProjects.filter(p => p.status === "activo");
+      if (els.dashboardProjectCount) els.dashboardProjectCount.textContent = `${active.length} activos`;
+      if (els.dashboardProjectList) {
+        if (!active.length) {
+          els.dashboardProjectList.innerHTML = '<p class="ui-empty">Sin proyectos activos.</p>';
+        } else {
+          els.dashboardProjectList.innerHTML = active.slice(0, 4).map(p => `
+            <div class="dash-list-item">
+              <span class="ui-badge ui-badge--sky">${escapeHtml(p.status)}</span>
+              <strong>${escapeHtml(p.name)}</strong>
+              <small>${escapeHtml(p.priority)}</small>
+            </div>
+          `).join("");
+        }
       }
     }
 
@@ -1106,7 +1209,10 @@
 
     function renderNotes(notes) {
       const filter = els.noteFilters?.querySelector(".filter-btn.active")?.dataset.filter || "todas";
-      let filtered = notes;
+      const query = (els.noteSearch?.value || "").toLowerCase().trim();
+      let filtered = query
+        ? notes.filter(n => [n.title, n.content, NOTE_KIND_LABELS[n.kind] || n.kind, n.source].join(" ").toLowerCase().includes(query))
+        : notes;
       if (filter === "nfc") filtered = notes.filter((note) => note.source === "nfc");
       else if (filter !== "todas") filtered = notes.filter((note) => note.kind === filter);
 
@@ -1221,7 +1327,13 @@
 
     /* ---------------------------------------------------------------- contactos */
     function renderContactos(notes) {
-      const list = notes.filter(n => n.kind === "contacto");
+      const query = (els.contactSearch?.value || "").toLowerCase().trim();
+      const list = notes.filter(n => {
+        if (n.kind !== "contacto") return false;
+        if (!query) return true;
+        const c = n.contact || {};
+        return [n.title, c.name, c.phone, c.email, c.org, n.content].join(" ").toLowerCase().includes(query);
+      });
       if (!list.length) {
         els.contactosList.innerHTML = '<p class="empty-state">Aún no tienes contactos guardados.</p>';
         if (els.contactosCount) els.contactosCount.textContent = "0 contactos";
@@ -1260,7 +1372,8 @@
       if (!currentUser) return;
       try {
         const data = await api("/api/notes");
-        renderContactos(data.notes || []);
+        allContactNotes = data.notes || [];
+        renderContactos(allContactNotes);
       } catch (e) {
         console.error(e);
       }
@@ -1475,20 +1588,23 @@
       els.saveAiBtn.addEventListener("click", async () => {
         if (!currentUser) return;
         els.saveAiBtn.disabled = true;
+        const typedKey = els.aiApiKey?.value.trim() || "";
+        const payload = {
+          aiModel: els.aiModel?.value.trim() || null,
+          aiBaseUrl: els.aiBaseUrl?.value.trim() || null,
+        };
+        if (typedKey) payload.aiApiKey = typedKey;
         try {
-          await api("/api/preferences", {
-            method: "PUT",
-            body: JSON.stringify({
-              aiApiKey: els.aiApiKey?.value || null,
-              aiModel: els.aiModel?.value.trim() || null,
-              aiBaseUrl: els.aiBaseUrl?.value.trim() || null,
-            }),
-          });
-          currentUser.aiApiKey = els.aiApiKey?.value || null;
-          currentUser.aiModel = els.aiModel?.value.trim() || null;
-          currentUser.aiBaseUrl = els.aiBaseUrl?.value.trim() || null;
+          await api("/api/preferences", { method: "PUT", body: JSON.stringify(payload) });
+          if (typedKey) currentUser.aiApiKey = typedKey;
+          currentUser.aiModel = payload.aiModel;
+          currentUser.aiBaseUrl = payload.aiBaseUrl;
+          if (els.aiApiKey) {
+            els.aiApiKey.value = "";
+            els.aiApiKey.placeholder = currentUser.aiApiKey ? "API key configurada · no se muestra" : "Ingresa tu API key...";
+          }
           toast("API key del asistente guardada.", "ok");
-        loadAiStatus();
+          loadAiStatus();
         } catch (err) {
           toast(err.message || "Error al guardar la API key.", "error");
         } finally {
@@ -1535,7 +1651,8 @@
         const nextDisplayName = displayName || currentUser.name;
         currentUser.displayName = nextDisplayName;
         els.displayName.value = nextDisplayName;
-        els.welcomeName.textContent = `Hola, ${nextDisplayName}`;
+        els.welcomeName.textContent = nextDisplayName;
+        if (els.heroGreetingName) els.heroGreetingName.textContent = nextDisplayName;
         els.userNameTop.textContent = nextDisplayName;
         if (els.sidebarName) els.sidebarName.textContent = nextDisplayName;
         if (accent) {
@@ -1553,6 +1670,9 @@
           renderAvatar(avatar, els.userAvatarSmall, seed);
           if (els.sidebarAvatar) renderAvatar(avatar, els.sidebarAvatar, seed);
           els.profileAvatar.innerHTML = `<img src="${avatarUrl(avatar, seed)}" alt="">`;
+          import("/profile-sphere.js")
+            .then((module) => module.mountProfileSphere(els.profileOrbitCanvas, avatarUrl(avatar, seed)))
+            .catch(() => {});
         }
         toast("Ajustes guardados.", "ok");
       } catch (err) {
@@ -1614,6 +1734,7 @@
       btn.classList.add("active");
       loadTasks();
     });
+    if (els.taskSearch) els.taskSearch.addEventListener("input", () => renderTasks(allTasks));
     if (els.taskModal) {
       els.taskModalClose?.addEventListener("click", closeTaskModal);
       els.taskModalSave?.addEventListener("click", saveTask);
@@ -1667,6 +1788,8 @@
         renderNotes(allNotes);
       });
     }
+    if (els.noteSearch) els.noteSearch.addEventListener("input", () => renderNotes(allNotes));
+    if (els.contactSearch) els.contactSearch.addEventListener("input", () => renderContactos(allContactNotes));
     if (els.saveContactBtn) els.saveContactBtn.addEventListener("click", saveContact);
     if (els.resetContactBtn) els.resetContactBtn.addEventListener("click", resetContactForm);
     if (els.contactosList) {

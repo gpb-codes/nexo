@@ -155,3 +155,12 @@ adb devices -l
 adb -s 2806ac560d26 install -r ~/Descargas/Nexo-mobile-release.apk
 adb -s 2806ac560d26 logcat -d -t 300
 ```
+
+## 10. Rediseño visual (2026-11-27)
+
+- Implementado localmente en `unified-app/`: dashboard con esfera Three.js del avatar real, bienvenida dinámica, paneles de tareas/proyectos con datos reales, sidebar plegable y bottom nav móvil.
+- Sistema de diseño y auditoría en `docs/design/`.
+- Búsquedas locales añadidas en tareas, notas y contactos.
+- API key oculta tras guardar.
+- Validado con `node --check`, IDs únicos, consola sin errores y pruebas locales de datos.
+- **No desplegar este rediseño hasta aprobación explícita.**

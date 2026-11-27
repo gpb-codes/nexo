@@ -210,6 +210,14 @@
         <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Abrir menú">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
+        <button class="icon-btn sidebar-collapse-btn" id="sidebarCollapseBtn" type="button" aria-label="Contraer menú" data-tip="Contraer menú">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <span class="topbar-brand" aria-hidden="true">
+          <span class="brand-mark small">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </span>
+        </span>
         <div class="page-heading">
           <span class="page-kicker" id="pageKicker">Nexo</span>
           <h1 id="pageTitle">Inicio</h1>
@@ -220,67 +228,93 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="search" id="globalSearch" placeholder="Buscar tareas o proyectos..." aria-label="Buscar">
         </div>
+        <span class="session-indicator" id="sessionIndicator" aria-label="Sesión activa"><span></span>En línea</span>
+        <button class="icon-btn ui-tooltip" id="notificationsBtn" type="button" aria-label="Notificaciones" data-tip="Sin notificaciones nuevas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
         <button class="icon-btn" id="themeToggle" type="button" aria-label="Cambiar tema">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
         </button>
-        <span class="user-badge" id="userBadge">
+        <button class="user-badge" id="userBadge" type="button" data-tab="perfil" aria-label="Abrir perfil">
           <span class="user-avatar-small" id="userAvatarSmall"></span>
           <span id="userNameTop">Usuario</span>
-        </span>
+        </button>
       </div>
     </header>
 
     <main class="main-content" id="tabContent">
       <!-- Inicio -->
       <section class="tab-panel active" id="tab-inicio">
-        <div class="hero-card">
-          <div class="hero-glow"></div>
-          <div class="hero-row">
-            <div class="avatar avatar-lg" id="userAvatar"></div>
-            <div>
-              <span class="hero-kicker">Bienvenido de nuevo</span>
-              <h2 id="welcomeName">Hola</h2>
-              <p class="subtitle" id="welcomeEmail">tu@correo.com</p>
+        <div class="dash-wrap">
+          <header class="dash-heading">
+            <span class="dash-kicker">ESPACIO PERSONAL</span>
+            <h1 class="dash-title">Bienvenido de vuelta,<br><span id="heroGreetingName">Nexo</span></h1>
+            <p class="dash-subtitle">Tu segundo cerebro, en un solo lugar.</p>
+          </header>
+
+          <section class="dash-hero ui-card">
+            <div class="profile-orbit" id="profileOrbit">
+              <canvas id="profileOrbitCanvas" aria-label="Esfera 3D de perfil"></canvas>
+              <span class="orbit-ring orbit-ring-a" aria-hidden="true"></span>
+              <span class="orbit-ring orbit-ring-b" aria-hidden="true"></span>
+              <span class="ui-avatar" id="userAvatar" hidden></span>
             </div>
+            <div class="dash-hero-copy">
+              <span class="ui-badge ui-badge--sky">IDENTIDAD</span>
+              <h2 id="welcomeName">Tu espacio</h2>
+              <p class="subtitle" id="welcomeEmail">tu@correo.com</p>
+              <p class="hero-text">Todo lo que ocurre en <span id="heroSiteName">Nexo</span>: conocimiento, actividad y objetivos.</p>
+              <div class="dash-metrics">
+                <div><strong id="statTasks">0</strong><span>Tareas</span></div>
+                <div><strong id="statProjects">0</strong><span>Proyectos</span></div>
+                <div><strong id="statNotes">0</strong><span>Notas</span></div>
+                <div><strong id="statGithub">—</strong><span>Repos</span></div>
+              </div>
+            </div>
+          </section>
+
+          <button class="brain-access" data-tab="grafo" type="button">
+            <span class="brain-access-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/><line x1="5" y1="19" x2="19" y2="19"/></svg>
+            </span>
+            <span>
+              <strong>Segundo Cerebro</strong>
+              <small>Explora el grafo de conocimiento</small>
+            </span>
+            <span class="brain-access-arrow" aria-hidden="true">→</span>
+          </button>
+
+          <div class="dash-grid">
+            <section class="ui-card dash-panel">
+              <div class="panel-head">
+                <h2>Tareas diarias</h2>
+                <span class="ui-badge ui-badge--accent" id="dashboardTaskCount">0 pendientes</span>
+              </div>
+              <div class="ui-progress" aria-label="Progreso de tareas"><span id="dashboardTaskProgress" style="width:0%"></span></div>
+              <div class="dash-list" id="dashboardTaskList">
+                <p class="ui-empty">Sin tareas pendientes.</p>
+              </div>
+              <button class="ui-btn ui-btn--ghost" data-tab="tareas" type="button">Ver todas las tareas</button>
+            </section>
+
+            <section class="ui-card dash-panel">
+              <div class="panel-head">
+                <h2>Proyectos</h2>
+                <span class="ui-badge ui-badge--sky" id="dashboardProjectCount">0 activos</span>
+              </div>
+              <div class="dash-list" id="dashboardProjectList">
+                <p class="ui-empty">Sin proyectos activos.</p>
+              </div>
+              <div class="dash-panel-actions">
+                <button class="ui-btn ui-btn--primary" id="dashboardCreateProjectBtn" type="button">Nuevo proyecto</button>
+                <button class="ui-btn ui-btn--ghost" data-tab="proyectos" type="button">Ver proyectos</button>
+              </div>
+            </section>
           </div>
-          <p class="hero-text">Tu conocimiento, tus tareas y tus herramientas en un solo lugar. Todo lo que ocurre en <span id="heroSiteName">Nexo</span>, de un vistazo.</p>
-        </div>
 
-        <div class="stats-grid">
-          <article class="stat-card">
-            <span class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            </span>
-            <div><strong id="statTasks">0</strong><span>Tareas pendientes</span></div>
-          </article>
-          <article class="stat-card">
-            <span class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-            </span>
-            <div><strong id="statProjects">0</strong><span>Proyectos activos</span></div>
-          </article>
-          <article class="stat-card">
-            <span class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            </span>
-            <div><strong id="statNotes">0</strong><span>Notas y capturas</span></div>
-          </article>
-          <article class="stat-card">
-            <span class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.72c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.9 1.57 2.35 1.12 2.92.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.9-1.33 2.74-1.05 2.74-1.05.55 1.4.2 2.44.1 2.7a4 4 0 0 1 1.03 2.75c0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9v2.81c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
-            </span>
-            <div><strong id="statGithub">—</strong><span>Repos públicos</span></div>
-          </article>
-        </div>
-
-        <div class="split-grid">
-          <section class="panel">
-            <div class="panel-head"><h2>Accesos rápidos</h2><span class="panel-hint">Tus herramientas</span></div>
+          <section class="ui-card dash-tools">
+            <div class="panel-head"><h2>Herramientas</h2><span class="panel-hint">Accesos directos</span></div>
             <div class="quick-grid">
-              <a class="quick-btn" href="https://segundo-cerebro-e4v.pages.dev" target="_blank" rel="noreferrer">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/><line x1="5" y1="19" x2="19" y2="19"/></svg>
-                <span>Grafo</span>
-              </a>
               <a class="quick-btn" href="https://github-access-console.pages.dev" target="_blank" rel="noreferrer">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-2.25-2.25"/></svg>
                 <span>Consola SSH</span>
@@ -293,14 +327,12 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
                 <span>Dictar</span>
               </button>
+              <button class="quick-btn" data-tab="captura" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h3l2-3h6l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span>Capturar</span>
+              </button>
             </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head"><h2>Actividad reciente</h2><span class="panel-hint">Últimos movimientos</span></div>
-            <div class="activity-list" id="activityList">
-              <p class="empty-state">Sin actividad reciente. Crea una tarea o un proyecto para empezar.</p>
-            </div>
+            <div class="activity-list" id="activityList" hidden></div>
           </section>
         </div>
       </section>
@@ -378,6 +410,7 @@
             <button class="filter-btn" data-filter="media">Media</button>
             <button class="filter-btn" data-filter="baja">Baja</button>
           </div>
+          <input type="search" id="taskSearch" class="ui-input local-search" placeholder="Buscar tareas..." aria-label="Buscar tareas">
           <div class="task-list" id="taskList"><p class="empty-state">Sin tareas. Agrega una arriba.</p></div>
         </div>
       </section>
@@ -520,6 +553,7 @@
             <button class="filter-btn" data-filter="nfc">NFC</button>
           </div>
 
+          <input type="search" id="noteSearch" class="ui-input local-search" placeholder="Buscar notas y capturas..." aria-label="Buscar notas">
           <div class="note-list" id="notesList">
             <p class="empty-state">Sin notas. Usa NFC, la cámara o el formulario para crear la primera.</p>
           </div>
@@ -571,6 +605,7 @@
               <h3>Contactos en Nexo</h3>
               <span class="panel-hint" id="contactosCount">0 contactos</span>
             </div>
+            <input type="search" id="contactSearch" class="ui-input local-search" placeholder="Buscar contactos..." aria-label="Buscar contactos">
             <div class="contactos-list" id="contactosList">
               <p class="empty-state">Aún no tienes contactos guardados. Usa el formulario de arriba.</p>
             </div>
@@ -814,6 +849,49 @@
         </div>
       </section>
     </main>
+  </div>
+</div>
+
+<nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Navegación móvil">
+  <button class="tab-btn active" data-tab="inicio" type="button" aria-label="Inicio">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="tab-btn" data-tab="tareas" type="button" aria-label="Tareas">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span>Tareas</span>
+  </button>
+  <button class="tab-btn" data-tab="proyectos" type="button" aria-label="Proyectos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    <span>Proyectos</span>
+  </button>
+  <button class="tab-btn" data-tab="grafo" type="button" aria-label="Segundo cerebro">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/><line x1="5" y1="19" x2="19" y2="19"/></svg>
+    <span>Cerebro</span>
+  </button>
+  <button class="tab-btn" data-tab="captura" type="button" aria-label="Notas y captura">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <span>Notas</span>
+  </button>
+  <button class="bottom-nav-btn" id="mobileMoreBtn" type="button" aria-label="Más secciones">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="5" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="19" cy="5" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="19" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="19" cy="19" r="1"/></svg>
+    <span>Más</span>
+  </button>
+</nav>
+
+<div class="mobile-more-sheet" id="mobileMoreSheet" hidden>
+  <div class="mobile-more-head">
+    <strong>Más secciones</strong>
+    <button class="icon-btn" id="mobileMoreClose" type="button" aria-label="Cerrar">×</button>
+  </div>
+  <div class="mobile-more-grid">
+    <button class="tab-btn" data-tab="contactos" type="button">Contactos</button>
+    <button class="tab-btn" data-tab="captura" type="button">Notas y captura</button>
+    <button class="tab-btn" data-tab="github" type="button">GitHub</button>
+    <button class="tab-btn" data-tab="voz" type="button">Voz</button>
+    <button class="tab-btn" data-tab="chat" type="button">Asistente IA</button>
+    <button class="tab-btn" data-tab="perfil" type="button">Perfil</button>
+    <button class="tab-btn" data-tab="ajustes" type="button">Ajustes</button>
   </div>
 </div>
 
