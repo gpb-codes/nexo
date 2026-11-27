@@ -5,4 +5,7 @@ export interface TaskRepository {
   create(input: CreateTaskInput): Promise<void>;
   update(id: string, patch: UpdateTaskInput): Promise<void>;
   delete(id: string): Promise<void>;
+  pushCreate(input: CreateTaskInput): Promise<Task>;
+  pushUpdate(id: string, patch: UpdateTaskInput): Promise<void>;
+  pushDelete(id: string): Promise<void>;
 }

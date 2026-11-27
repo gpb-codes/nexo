@@ -11,12 +11,19 @@ export class D1TaskRepository {
   }
 
   async create(env, userId, data) {
+    if (data.clientId) {
+      const existing = await env.DB.prepare(
+        "SELECT id, title, status, created_at FROM tasks WHERE user_id = ? AND client_id = ?"
+      ).bind(userId, data.clientId).first();
+      if (existing) return existing;
+    }
+
     const id = "t_" + crypto.randomUUID().replace(/-/g, "").slice(0, 12);
     const now = new Date().toISOString();
     await env.DB.prepare(
-      "INSERT INTO tasks (id, user_id, title, description, priority, status, due_date, category, created_at) VALUES (?, ?, ?, ?, ?, 'pendiente', ?, ?, ?)"
-    ).bind(id, userId, data.title, data.description || "", data.priority, data.dueDate || null, data.category || null, now).run();
-    return { id, title: data.title, status: "pendiente", created_at: now };
+      "INSERT INTO tasks (id, user_id, title, description, priority, status, due_date, category, client_id, created_at) VALUES (?, ?, ?, ?, ?, 'pendiente', ?, ?, ?, ?)"
+    ).bind(id, userId, data.title, data.description || "", data.priority, data.dueDate || null, data.category || null, data.clientId || null, now).run();
+    return { id, title: data.title, status: "pendiente", created_at: now, client_id: data.clientId || null };
   }
 
   async update(env, userId, id, patch) {

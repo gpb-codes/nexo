@@ -1,6 +1,6 @@
 import { TASK_PRIORITIES, TASK_STATUSES } from "../../domain/entities.js";
 import { NotFoundError } from "../../domain/errors.js";
-import { dateString, oneOf, optionalText, requiredText } from "../../domain/validation.js";
+import { clientId, dateString, oneOf, optionalText, requiredText } from "../../domain/validation.js";
 
 export function makeTaskUseCases(repository) {
   return {
@@ -12,7 +12,8 @@ export function makeTaskUseCases(repository) {
       const dueDate = dateString(input.dueDate ?? input.due_date);
       const category = optionalText(input.category, 80, "Categoría") || null;
       const description = optionalText(input.description, 2000, "Descripción") || "";
-      return repository.create(env, userId, { title, priority, dueDate, category, description });
+      const idempotencyKey = clientId(input.clientId ?? input.client_id);
+      return repository.create(env, userId, { title, priority, dueDate, category, description, clientId: idempotencyKey });
     },
 
     async update(env, userId, id, input) {

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { ActivityIndicator, Pressable, useColorScheme, View, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useLogout, useSession } from "../src/presentation/hooks/use-auth";
+import { usePendingChanges, useSync } from "../src/presentation/hooks/use-sync";
 import { theme } from "../src/presentation/theme/tokens";
 
 export default function HomeScreen() {
@@ -10,6 +11,8 @@ export default function HomeScreen() {
   const tokens = theme[scheme];
   const session = useSession();
   const logout = useLogout();
+  const pending = usePendingChanges();
+  const sync = useSync();
 
   useEffect(() => {
     if (session.isError) router.replace("/login");
@@ -36,6 +39,15 @@ export default function HomeScreen() {
           <Text style={[styles.body, { color: tokens.muted }]}>
             Sesión verificada con Bearer. Arquitectura: dominio, aplicación, infraestructura y presentación.
           </Text>
+          <Pressable
+            style={[styles.button, { borderColor: tokens.border, backgroundColor: tokens.panel }]}
+            onPress={() => sync.mutate()}
+            disabled={sync.isPending}
+          >
+            <Text style={{ color: tokens.text }}>
+              Sincronizar cambios{pending.data ? ` (${pending.data})` : ""}
+            </Text>
+          </Pressable>
           {links.map((link) => (
             <Pressable
               key={link.path}

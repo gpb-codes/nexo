@@ -80,3 +80,8 @@ export function optionalText(value, max, label) {
   if (value === undefined || value === null) return undefined;
   return text(value, max, label);
 }
+
+export function clientId(value) {
+  const v = optionalText(value, 80, "Client id");
+  return v || null;
+}

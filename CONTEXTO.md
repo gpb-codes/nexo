@@ -44,7 +44,7 @@ Arquitectura limpia aplicada en Functions:
 - PWA instalable, service worker network-first y descarga autodefinida.
 - Grafo 3D estilo universo con Three.js y lista de entradas de Quartz.
 - Botón de apoyo con datos bancarios y enlace de transferencia.
-- Migraciones D1: `0001`–`0007`.
+- Migraciones D1: `0001`–`0008` (`0008` añade `tasks.client_id` para idempotencia offline).
 
 ### Segundo cerebro
 
@@ -71,7 +71,8 @@ Stack: Expo SDK 58, React Native 0.88, TypeScript, Expo Router.
 - TanStack Query, Zustand, expo-sqlite, SecureStore, cámara, notificaciones y Reanimated.
 - Login/registro con SecureStore; sesión verificada y logout.
 - Tareas, proyectos, notas, contactos y ajustes.
-- Caché SQLite y outbox básico para tareas.
+- Caché SQLite, outbox y sincronización idempotente de tareas mediante `clientId`.
+- Botón de sincronización con contador de cambios pendientes.
 - APK release generado e instalado por USB en `com.gpbcode.nexo`.
 
 ## 4. Arquitectura de datos

@@ -19,6 +19,7 @@ export type CreateTaskInput = {
   description?: string;
   category?: string;
   due_date?: string;
+  clientId?: string;
 };
 
 export type UpdateTaskInput = Partial<Pick<Task, "title" | "description" | "priority" | "status" | "due_date" | "category">>;

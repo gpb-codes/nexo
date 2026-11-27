@@ -16,14 +16,43 @@ export class ApiTaskRepository implements TaskRepository {
     }
   }
 
+  async pushCreate(input: CreateTaskInput): Promise<Task> {
+    const data = await api<{ ok: boolean; task: Task }>(endpoints.tasks, {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+    return data.task;
+  }
+
+  async pushUpdate(id: string, patch: UpdateTaskInput): Promise<void> {
+    await api(endpoints.tasks, { method: "PUT", body: JSON.stringify({ id, ...patch }) });
+  }
+
+  async pushDelete(id: string): Promise<void> {
+    await api(endpoints.tasks, { method: "DELETE", body: JSON.stringify({ id }) });
+  }
+
   async create(input: CreateTaskInput): Promise<void> {
+    const clientId = input.clientId || `local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const payload: CreateTaskInput = { ...input, clientId };
     try {
-      await api(endpoints.tasks, { method: "POST", body: JSON.stringify(input) });
+      const created = await this.pushCreate(payload);
+      await putTaskCache({
+        id: created.id,
+        title: created.title,
+        description: input.description,
+        priority: input.priority,
+        status: "pendiente",
+        due_date: input.due_date ?? null,
+        category: input.category ?? null,
+        created_at: created.created_at,
+      });
+      await removeTaskCache(clientId);
     } catch (error) {
       if (!isNetworkError(error)) throw error;
-      await enqueue("tasks", "create", input);
+      await enqueue("tasks", "create", payload);
       await putTaskCache({
-        id: `local_${Date.now()}`,
+        id: clientId,
         title: input.title,
         description: input.description,
         priority: input.priority,
@@ -37,16 +66,16 @@ export class ApiTaskRepository implements TaskRepository {
 
   async update(id: string, patch: UpdateTaskInput): Promise<void> {
     try {
-      await api(endpoints.tasks, { method: "PUT", body: JSON.stringify({ id, ...patch }) });
+      await this.pushUpdate(id, patch);
     } catch (error) {
       if (!isNetworkError(error)) throw error;
-      await enqueue("tasks", "update", { id, ...patch });
+      await enqueue("tasks", "update", { id, patch });
     }
   }
 
   async delete(id: string): Promise<void> {
     try {
-      await api(endpoints.tasks, { method: "DELETE", body: JSON.stringify({ id }) });
+      await this.pushDelete(id);
     } catch (error) {
       if (!isNetworkError(error)) throw error;
       await enqueue("tasks", "delete", { id });
