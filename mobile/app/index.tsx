@@ -24,6 +24,7 @@ export default function HomeScreen() {
     { label: "Ajustes", path: "/settings" },
     { label: "Notas", path: "/notes" },
     { label: "Contactos", path: "/contacts" },
+    { label: "Asistente IA", path: "/chat" },
   ] as const;
 
   return (

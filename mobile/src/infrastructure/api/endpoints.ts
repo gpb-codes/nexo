@@ -9,4 +9,6 @@ export const endpoints = {
   mobileLogin: "/api/mobile/login",
   mobileRegister: "/api/mobile/register",
   logout: "/api/logout",
+  aiStatus: "/api/ai/status",
+  aiChat: "/api/ai/chat",
 } as const;

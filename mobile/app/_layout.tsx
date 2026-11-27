@@ -35,6 +35,7 @@ export default function RootLayout() {
           <Stack.Screen name="projects" options={{ title: "Proyectos" }} />
           <Stack.Screen name="settings" options={{ title: "Ajustes" }} />
           <Stack.Screen name="notes" options={{ title: "Notas" }} />
+          <Stack.Screen name="chat" options={{ title: "Asistente IA" }} />
           <Stack.Screen name="contacts" options={{ title: "Contactos" }} />
         </Stack>
       </QueryClientProvider>

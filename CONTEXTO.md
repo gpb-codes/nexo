@@ -40,6 +40,7 @@ Arquitectura limpia aplicada en Functions:
 - NFC real (`NDEFReader`) y cámara real (`getUserMedia`), con mensajes honestos cuando no hay soporte.
 - Pantalla de Contactos para socios/colaboradores con acceso a WhatsApp.
 - Ajustes: identidad del sitio, tema, acento, avatar, nombre visible y API key del asistente IA.
+- Asistente IA real con proxy server-side (`/api/ai/status`, `/api/ai/chat`), proveedores OpenAI-compatible y clave nunca expuesta al cliente.
 - Términos en `/terminos`.
 - PWA instalable, service worker network-first y descarga autodefinida.
 - Grafo 3D estilo universo con Three.js y lista de entradas de Quartz.
@@ -70,7 +71,7 @@ Arquitectura limpia aplicada:
 Stack: Expo SDK 58, React Native 0.88, TypeScript, Expo Router.
 - TanStack Query, Zustand, expo-sqlite, SecureStore, cámara, notificaciones y Reanimated.
 - Login/registro con SecureStore; sesión verificada y logout.
-- Tareas, proyectos, notas, contactos y ajustes.
+- Tareas, proyectos, notas, contactos, ajustes y chat IA.
 - Caché SQLite, outbox y sincronización idempotente de tareas mediante `clientId`.
 - Botón de sincronización con contador de cambios pendientes.
 - APK release generado e instalado por USB en `com.gpbcode.nexo`.

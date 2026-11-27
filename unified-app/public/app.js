@@ -137,6 +137,7 @@
       ttsText: $("ttsText"),
       ttsBtn: $("ttsBtn"),
       chatMessages: $("chatMessages"),
+      chatNotice: $("chatNotice"),
       chatInput: $("chatInput"),
       chatSendBtn: $("chatSendBtn"),
       profileAvatar: $("profileAvatar"),
@@ -181,6 +182,7 @@
     let nfcCapture = null;
     let cameraStream = null;
     let cameraCapture = null;
+    let chatHistory = [];
 
     const api = async (path, options = {}) => {
       const res = await fetch(path, { headers: { "Content-Type": "application/json", ...options.headers }, ...options });
@@ -460,6 +462,7 @@
       loadNotes();
       loadContactos();
       loadGithubStatus();
+      loadAiStatus();
       initVoice();
       initCaptureTools();
     }
@@ -476,6 +479,7 @@
       resetCamera();
       stopNfcScan(false);
       closeNoteModal();
+      chatHistory = [];
       applySiteSettings(SITE_DEFAULTS);
       fillSiteForm(SITE_DEFAULTS);
       els.appContainer.hidden = true;
@@ -1412,22 +1416,58 @@
     els.chatSendBtn.addEventListener("click", sendChat);
     els.chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendChat(); });
 
-    function sendChat() {
+    function appendChatMessage(kind, content) {
+      const div = document.createElement("div");
+      div.className = `chat-msg chat-msg-${kind === "user" ? "user" : "ai"}`;
+      const avatar = document.createElement("div");
+      avatar.className = "chat-avatar";
+      avatar.textContent = kind === "user" ? "Tú" : "AI";
+      const bubble = document.createElement("div");
+      bubble.className = "chat-bubble";
+      bubble.textContent = content;
+      div.append(avatar, bubble);
+      els.chatMessages.appendChild(div);
+      els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+      return bubble;
+    }
+
+    async function loadAiStatus() {
+      if (!currentUser || !els.chatNotice) return;
+      try {
+        const status = await api("/api/ai/status");
+        els.chatNotice.textContent = status.configured
+          ? `IA lista · ${status.model} · ${status.provider}`
+          : "IA no conectada. Configura API key, modelo y endpoint en Ajustes.";
+        els.chatNotice.classList.toggle("ready", !!status.configured);
+      } catch (e) {
+        els.chatNotice.textContent = "No se pudo comprobar la configuración de IA.";
+      }
+    }
+
+    async function sendChat() {
       const msg = els.chatInput.value.trim();
       if (!msg) return;
       els.chatInput.value = "";
+      chatHistory.push({ role: "user", content: msg });
+      appendChatMessage("user", msg);
+      const bubble = appendChatMessage("ai", "Conectando...");
+      els.chatSendBtn.disabled = true;
 
-      const msgDiv = document.createElement("div");
-      msgDiv.className = "chat-msg chat-msg-user";
-      msgDiv.innerHTML = `<div class="chat-avatar">Tú</div><div class="chat-bubble">${escapeHtml(msg)}</div>`;
-      els.chatMessages.appendChild(msgDiv);
-      els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
-
-      const aiDiv = document.createElement("div");
-      aiDiv.className = "chat-msg chat-msg-ai";
-      aiDiv.innerHTML = `<div class="chat-avatar">AI</div><div class="chat-bubble">IA no disponible: no hay backend configurado. Conecta OpenCode o Hermes para habilitar el chat.</div>`;
-      els.chatMessages.appendChild(aiDiv);
-      els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+      try {
+        const data = await api("/api/ai/chat", {
+          method: "POST",
+          body: JSON.stringify({ messages: chatHistory.slice(-12) }),
+        });
+        bubble.textContent = data.content || "Sin respuesta.";
+        chatHistory.push({ role: "assistant", content: data.content || "" });
+        chatHistory = chatHistory.slice(-12);
+        els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+      } catch (err) {
+        bubble.textContent = err.message || "Error al contactar con el proveedor de IA.";
+        chatHistory.pop();
+      } finally {
+        els.chatSendBtn.disabled = false;
+      }
     }
 
     /* ---------------------------------------------------------------- ajustes */
@@ -1448,6 +1488,7 @@
           currentUser.aiModel = els.aiModel?.value.trim() || null;
           currentUser.aiBaseUrl = els.aiBaseUrl?.value.trim() || null;
           toast("API key del asistente guardada.", "ok");
+        loadAiStatus();
         } catch (err) {
           toast(err.message || "Error al guardar la API key.", "error");
         } finally {
