@@ -1,0 +1,8 @@
+name = "unified-app"
+compatibility_date = "2026-10-26"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "unified-app-db"
+database_id = "ffef4150-c7d6-4fe1-a003-f5cfa0e686b7"

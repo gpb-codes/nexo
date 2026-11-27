@@ -1,0 +1,36 @@
+# Dependencias y artefactos de build
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Wrangler / Cloudflare local state (puede contener datos locales)
+.wrangler/
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Bóveda Obsidian (privada) y contenido generado de Quartz
+quartz/content
+quartz/public/
+
+# Android / Expo generados
+mobile/android/app/build/
+mobile/android/.gradle/
+mobile/android/build/
+mobile/.gradle/
+mobile/android/local.properties
+*.apk
+*.aab
+
+# Logs y sistema
+*.log
+.DS_Store
+Thumbs.db
+
+# Copias de seguridad de git local
+.git-backups/

@@ -1,0 +1,238 @@
+================================================================================
+RESUMEN DEL PROYECTO — ECOSISTEMA NEXO
+Fecha: 27 de octubre de 2026
+================================================================================
+
+1. VISIÓN GENERAL
+================================================================================
+
+Se construyó un ecosistema completo de "segundo cerebro" que conecta:
+- Bóveda de Obsidian (notas, bitácora, conocimiento)
+- GitHub (SSH, repositorios, issues)
+- Cloudflare (Pages, D1, Functions)
+- App unificada (webapp + PWA)
+- Integraciones futuras (voz, IA, Coucou, Hermes)
+
+El objetivo final es una sola app (web + móvil) que unifique todo.
+
+================================================================================
+2. COMPONENTES CONSTRUIDOS
+================================================================================
+
+A. GITHUB ACCESS CONSOLE
+   - Ubicación: Proyecto predeterminado/github-access-console/
+   - Local: http://127.0.0.1:8787
+   - Cloudflare: https://github-access-console.pages.dev
+   - Funciones: estado SSH, huella, handshake, registro en vivo, pasos visuales
+   - Tema: morado (violeta #8b5cf6, lavanda #a78bfa)
+   - Archivos: server.py, public/index.html, styles.css, app.js, build_static.py, deploy.sh
+   - Base de datos: no (solo estado local)
+
+B. SEGUNDO CEREBRO (Quartz v5)
+   - Ubicación: Proyecto predeterminado/quartz/
+   - URL: https://segundo-cerebro-e4v.pages.dev
+   - Funciones: grafo interactivo, búsqueda, backlinks, modo oscuro, callouts, wikilinks
+   - Tema: morado (personalizado en quartz/styles/custom.scss)
+   - Contenido: symlink a la bóveda (58 notas)
+   - Config: quartz.config.yaml (español, baseUrl, ignorePatterns)
+
+C. AUTH PORTAL (Login/Register/Logout + D1)
+   - Ubicación: Proyecto predeterminado/auth-portal/
+   - URL: https://auth-portal-px1.pages.dev
+   - Funciones: registro, login, logout, perfil, personalización
+   - Base de datos: Cloudflare D1 (SQLite en el edge)
+   - Tabla users: id, name, email, password (SHA-256), avatar, accent, display_name, created_at, last_login
+   - API: /api/register, /api/login, /api/me, /api/preferences
+   - Avatares: DiceBear (8 estilos: lorelei, micah, avataaars, bottts, fun-emoji, notionists, adventurer, thumbs)
+   - Personalización: 6 colores de acento, 8 avatares, nombre para mostrar
+
+D. APP UNIFICADA (Nexo)
+   - Ubicación: Proyecto predeterminado/unified-app/
+   - URL: (pendiente de despliegue)
+   - Funciones: auth (D1), dashboard, tareas (CRUD), grafo (iframe), GitHub, voz, chat, perfil
+   - Base de datos: Cloudflare D1 (users + tasks)
+   - API: /api/register, /api/login, /api/me, /api/preferences, /api/tasks
+   - Voz: Web Speech API (transcripción + TTS)
+   - Chat: placeholder (conectar con Claude/OpenCode)
+   - PWA: manifest.json + service worker (pendiente)
+
+E. BÓVEDA DE OBSIDIAN (información)
+   - Ubicación: Documentos/general/
+   - Repo GitHub: https://github.com/gpb-codes/second-brain (privado)
+   - Notas: 58 archivos markdown
+   - Estructura: 00_Inbox, 01_Configuracion, 02_Bitacora, 03_Fundamentos, 04_Sistemas, 05_Profesional, 06_Ensenanza, 07_Forense, 08_Proyectos (vacío), 09_Plantillas, 10_Indice
+   - Git: inicializado, sincronizado con GitHub
+   - Syncthing: configurado para 3 PCs + Android
+
+================================================================================
+3. INFRAESTRUCTURA
+================================================================================
+
+- Cloudflare Account: G.pedreros.becerra@gmail.com (c090af02141a25f0a745498cc2e4d486)
+- GitHub: gpb-codes (Gabriel Pedreros)
+- Pages projects:
+  - github-access-console.pages.dev
+  - segundo-cerebro-e4v.pages.dev
+  - auth-portal-px1.pages.dev
+- D1 databases:
+  - auth-portal-db (bab414e4-c1bb-41f7-98c2-af27b6d25fc7)
+  - unified-app-db (ffef4150-c7d6-4fe1-a003-f5cfa0e686b7)
+- SSH key: SHA256:hKWvgLYqIikdNkMoiCrzhpoPN8K7i7LtwmQ8UZgfsfA (ed25519)
+- wrangler: v4.153.0 (autenticado)
+- gh: v2.65.0 (autenticado, protocolo SSH)
+- opencode: v2.1.3
+- node: v26.12.0
+- python: 3.14.8
+
+================================================================================
+4. DECISIONES DOCUMENTADAS (en la bóveda)
+================================================================================
+
+A. Decisiones de funcionalidades futuras (02_Bitacora/Decisiones de funcionalidades futuras.md)
+   1. Transcripción de voz (Web Speech API / Whisper)
+   2. Contexto IA (RAG + archivo CONTEXTO.md)
+   3. Voz propia TTS (Sesame CSM / ElevenLabs)
+   4. GitHub (issues, PRs, actividad)
+   5. LinkedIn (compartir, estadísticas)
+   6. Bolsas de empleo (búsqueda, seguimiento)
+   7. Coucou (monitor, voz, notificaciones)
+
+B. Decisiones Sesame CSM + OpenCode + Hermes (02_Bitacora/Decisiones - Sesame CSM y OpenCode + Hermes.md)
+   - Sesame CSM: modelo open source para voz (clonación, TTS, contexto)
+   - OpenCode + Hermes Agent: Hermes coordina, OpenCode ejecuta código
+   - Arquitectura: Usuario → Hermes → OpenCode/GitHub/Obsidian → Sesame CSM (voz)
+   - Fases: 1) Hermes independiente, 2) Hermes delega en OpenCode, 3) GitHub+Obsidian, 4) Automatización+móvil
+
+C. Decisiones App unificada (02_Bitacora/Decisiones - App unificada movil y web.md)
+   - Unificar todo en una sola app (web + PWA)
+   - Opción A (PWA) recomendada para empezar
+   - 5 fases de implementación
+   - Componentes actuales → secciones de la app
+
+================================================================================
+5. MEJORAS PENDIENTES (priorizadas)
+================================================================================
+
+ALTA:
+  1. Cloudflare Access (privacidad) — requiere activar Zero Trust
+  2. GitHub Actions secrets (CI/CD automático)
+  3. Nota diaria automática (script)
+  4. Transcripción de voz (Web Speech API)
+  5. Archivo CONTEXTO.md (contexto para IA)
+  6. Evaluar e instalar Hermes Agent
+
+MEDIA:
+  7. Integrar Coucou (monitor, voz, notificaciones)
+  8. GitHub API (issues, PRs, actividad)
+  9. Más contenido en la bóveda
+  10. Integración OpenCode ↔ bóveda
+  11. Syncthing ↔ Git sin conflictos
+  12. Backup automático
+
+BAJA:
+  13. Dominio personalizado
+  14. Notificaciones/recordatorios
+  15. Modo offline (PWA)
+  16. Búsqueda semántica (embeddings)
+  17. Sesame CSM (voz propia)
+  18. Voz propia TTS (ElevenLabs)
+  19. LinkedIn
+  20. Bolsas de empleo
+
+================================================================================
+6. ARCHIVOS CLAVE
+================================================================================
+
+Proyecto predeterminado/
+├── github-access-console/
+│   ├── public/index.html, styles.css, app.js
+│   ├── server.py (servidor local)
+│   ├── build_static.py (generador dist/)
+│   ├── deploy.sh
+│   └── wrangler.toml
+├── auth-portal/
+│   ├── public/index.html, styles.css, app.js, avatars.js
+│   ├── functions/api/ (register.js, login.js, me.js, preferences.js)
+│   ├── schema.sql
+│   ├── wrangler.toml (binding D1)
+│   └── deploy.sh
+├── unified-app/
+│   ├── public/index.html, styles.css, app.js, avatars.js
+│   ├── functions/api/ (register.js, login.js, me.js, preferences.js, tasks.js)
+│   ├── schema.sql (users + tasks)
+│   ├── wrangler.toml (binding D1)
+│   ├── manifest.json (PWA)
+│   └── favicon.svg
+└── quartz/
+    ├── quartz.config.yaml (tema morado, español)
+    ├── quartz/styles/custom.scss (diseño mejorado)
+    ├── content/ → symlink a la bóveda
+    ├── public/ (build)
+    └── deploy.sh
+
+Documentos/general/ (bóveda)
+├── 02_Bitacora/
+│   ├── 2026-10-26.md (bitácora del día)
+│   ├── Mejoras pendientes - integración.md
+│   ├── Decisiones de funcionalidades futuras.md
+│   ├── Decisiones - Sesame CSM y OpenCode + Hermes.md
+│   └── Decisiones - App unificada movil y web.md
+├── index.md (página de inicio Quartz)
+├── .github/workflows/deploy-second-brain.yml
+└── .gitignore
+
+================================================================================
+7. ESTADO ACTUAL
+================================================================================
+
+✅ GitHub SSH conectado y verificado
+✅ GitHub Access Console (local + Cloudflare)
+✅ Segundo Cerebro (Quartz + Cloudflare, tema morado)
+✅ Auth Portal (login/register/logout + D1 real)
+✅ App unificada (estructura creada, D1, API, frontend)
+✅ Voz (Web Speech API integrada)
+✅ Chat (placeholder, listo para conectar con IA)
+✅ Tareas (CRUD con D1)
+✅ Avatares DiceBear (8 estilos)
+✅ Diseño unificado (morado, sin emojis, iconos SVG)
+✅ Vault en GitHub (privado, versionado)
+✅ CI/CD workflow (pendiente de secrets)
+✅ Bitácora y decisiones documentadas
+
+Pendiente:
+- App unificada desplegada en Cloudflare (listo para deploy)
+- Cloudflare Access (requiere activar Zero Trust)
+- GitHub Actions secrets (requiere configuración manual)
+- Sesame CSM (requiere GPU)
+- Hermes Agent (requiere evaluación e instalación)
+- PWA (service worker pendiente)
+
+================================================================================
+8. PRÓXIMOS PASOS SUGERIDOS
+================================================================================
+
+1. Desplegar la app unificada en Cloudflare Pages
+2. Configurar secrets de GitHub Actions
+3. Activar Cloudflare Access (o usar encrypted-pages)
+4. Crear script de nota diaria automática
+5. Agregar más contenido a la bóveda
+6. Evaluar Hermes Agent (instalar y probar Fase 1)
+7. Implementar transcripción de voz (Web Speech API)
+8. Crear archivo CONTEXTO.md para la IA
+9. Integrar Coucou con la bóveda (MCP)
+10. Obtener GitHub PAT para widget de actividad
+
+================================================================================
+NOTAS
+================================================================================
+
+- La bóveda (Documentos/general/) solo contiene información/notas.
+- El código está en Documentos/Proyecto predeterminado/.
+- Quartz usa symlink: content/ → bóveda.
+- Todos los sistemas comparten el tema morado (#8b5cf6, #a78bfa).
+- No hay emojis en ningún código fuente (reemplazados por iconos SVG).
+- La base de datos D1 es SQLite en el edge (Cloudflare).
+- Las contraseñas se hashean con SHA-256.
+- El servidor local de la consola GitHub solo escucha en 127.0.0.1.
+
+================================================================================

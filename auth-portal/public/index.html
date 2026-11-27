@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auth Portal · Segundo Cerebro</title>
+<meta name="description" content="Portal de acceso con autenticación, registro y personalización.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="avatars.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <span class="orb orb-a"></span>
+  <span class="orb orb-b"></span>
+  <span class="orb orb-c"></span>
+  <span class="orb orb-d"></span>
+  <canvas id="particles"></canvas>
+  <span class="grain"></span>
+</div>
+
+<div class="container">
+  <!-- Login View -->
+  <section class="view view-login active" id="viewLogin">
+    <div class="card">
+      <div class="card-glow"></div>
+      <div class="brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        </span>
+        <div>
+          <h1>Bienvenido</h1>
+          <p class="subtitle">Inicia sesión para acceder a tu segundo cerebro</p>
+        </div>
+      </div>
+
+      <form id="loginForm" class="form" novalidate>
+        <div class="field">
+          <label for="loginEmail">Correo</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            <input type="email" id="loginEmail" autocomplete="email" placeholder="tu@correo.com" required>
+          </div>
+          <span class="error" id="loginEmailErr"></span>
+        </div>
+
+        <div class="field">
+          <label for="loginPass">Contraseña</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••" required>
+            <button type="button" class="toggle-pass" data-target="loginPass" aria-label="Mostrar contraseña">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span class="error" id="loginPassErr"></span>
+        </div>
+
+        <div class="row-between">
+          <label class="checkbox">
+            <input type="checkbox" id="rememberMe">
+            <span class="checkmark"></span>
+            <span>Recordarme</span>
+          </label>
+          <a href="#" class="link-small" id="forgotLink">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="loginBtn">
+          <span class="btn-text">Iniciar sesión</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+
+        <div class="divider"><span>o</span></div>
+
+        <p class="switch-text">
+          ¿No tienes cuenta?
+          <button type="button" class="link-btn" data-view="register">Crear cuenta</button>
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Register View -->
+  <section class="view view-register" id="viewRegister">
+    <div class="card">
+      <div class="card-glow"></div>
+      <div class="brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>
+          </svg>
+        </span>
+        <div>
+          <h1>Crear cuenta</h1>
+          <p class="subtitle">Únete a tu segundo cerebro</p>
+        </div>
+      </div>
+
+      <form id="registerForm" class="form" novalidate>
+        <div class="field">
+          <label for="regName">Nombre</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="regName" autocomplete="name" placeholder="Tu nombre" required minlength="2">
+          </div>
+          <span class="error" id="regNameErr"></span>
+        </div>
+
+        <div class="field">
+          <label for="regEmail">Correo</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            <input type="email" id="regEmail" autocomplete="email" placeholder="tu@correo.com" required>
+          </div>
+          <span class="error" id="regEmailErr"></span>
+        </div>
+
+        <div class="field">
+          <label for="regPass">Contraseña</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="regPass" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required minlength="8">
+            <button type="button" class="toggle-pass" data-target="regPass" aria-label="Mostrar contraseña">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="strength" id="strengthBar"><span></span></div>
+          <span class="error" id="regPassErr"></span>
+        </div>
+
+        <div class="field">
+          <label for="regPass2">Confirmar contraseña</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="regPass2" autocomplete="new-password" placeholder="Repite la contraseña" required>
+          </div>
+          <span class="error" id="regPass2Err"></span>
+        </div>
+
+        <label class="checkbox terms">
+          <input type="checkbox" id="acceptTerms" required>
+          <span class="checkmark"></span>
+          <span>Acepto los <a href="#" class="link-small">términos y condiciones</a></span>
+        </label>
+
+        <button type="submit" class="btn btn-primary" id="registerBtn">
+          <span class="btn-text">Crear cuenta</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+
+        <p class="switch-text">
+          ¿Ya tienes cuenta?
+          <button type="button" class="link-btn" data-view="login">Iniciar sesión</button>
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Dashboard View -->
+  <section class="view view-dashboard" id="viewDashboard">
+    <div class="card card-wide">
+      <div class="card-glow"></div>
+
+      <header class="dash-header">
+        <div class="avatar" id="userAvatar"></div>
+        <div class="dash-info">
+          <h1 id="welcomeName">Bienvenido</h1>
+          <p class="subtitle" id="userEmail">tu@correo.com</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          <span>Cerrar sesión</span>
+        </button>
+      </header>
+
+      <div class="dash-grid">
+        <div class="dash-card">
+          <h3>Personalización</h3>
+          <p class="dash-desc">Elige tu color de acento y avatar.</p>
+
+          <div class="field">
+            <label>Color de acento</label>
+            <div class="color-picker" id="colorPicker">
+              <button class="color-swatch" data-color="#8b5cf6" style="--c:#8b5cf6" aria-label="Violeta"></button>
+              <button class="color-swatch" data-color="#ec4899" style="--c:#ec4899" aria-label="Rosa"></button>
+              <button class="color-swatch" data-color="#3b82f6" style="--c:#3b82f6" aria-label="Azul"></button>
+              <button class="color-swatch" data-color="#10b981" style="--c:#10b981" aria-label="Verde"></button>
+              <button class="color-swatch" data-color="#f59e0b" style="--c:#f59e0b" aria-label="Ámbar"></button>
+              <button class="color-swatch" data-color="#ef4444" style="--c:#ef4444" aria-label="Rojo"></button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Avatar</label>
+            <div class="avatar-picker" id="avatarPicker"></div>
+          </div>
+
+          <div class="field">
+            <label for="displayName">Nombre para mostrar</label>
+            <div class="input-wrap">
+              <input type="text" id="displayName" placeholder="Tu nombre">
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-sm" id="savePrefsBtn" type="button">
+            <span>Guardar preferencias</span>
+          </button>
+        </div>
+
+        <div class="dash-card">
+          <h3>Accesos rápidos</h3>
+          <p class="dash-desc">Tus herramientas conectadas.</p>
+          <div class="quick-links">
+            <a class="quick-link" href="https://segundo-cerebro-e4v.pages.dev" target="_blank" rel="noreferrer">
+              <span class="ql-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>
+              <span>Segundo Cerebro</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 3h7v7M21 3l-9 9"/></svg>
+            </a>
+            <a class="quick-link" href="https://github-access-console.pages.dev" target="_blank" rel="noreferrer">
+              <span class="ql-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-2.25-2.25"/></svg></span>
+              <span>GitHub Console</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 3h7v7M21 3l-9 9"/></svg>
+            </a>
+            <a class="quick-link" href="https://github.com/gpb-codes/second-brain" target="_blank" rel="noreferrer">
+              <span class="ql-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
+              <span>Vault en GitHub</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 3h7v7M21 3l-9 9"/></svg>
+            </a>
+            <a class="quick-link" href="http://127.0.0.1:8787" target="_blank" rel="noreferrer">
+              <span class="ql-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+              <span>Consola local</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 3h7v7M21 3l-9 9"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <h3>Tu cuenta</h3>
+          <p class="dash-desc">Información de tu perfil.</p>
+          <div class="account-info">
+            <div class="info-row"><span class="info-label">Nombre</span><span class="info-value" id="infoName">—</span></div>
+            <div class="info-row"><span class="info-label">Correo</span><span class="info-value" id="infoEmail">—</span></div>
+            <div class="info-row"><span class="info-label">Registrado</span><span class="info-value" id="infoDate">—</span></div>
+            <div class="info-row"><span class="info-label">Sesión</span><span class="info-value" id="infoSession">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

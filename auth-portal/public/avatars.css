@@ -1,0 +1,74 @@
+/* Avatar system — DiceBear (open source, 61 estilos) */
+/* Los avatares se generan via la API HTTP de DiceBear: https://api.dicebear.com */
+
+/* Avatar container */
+.avatar {
+  width: 64px; height: 64px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #ec4899);
+  box-shadow: 0 0 30px -4px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.2);
+  flex: none;
+  overflow: hidden;
+  position: relative;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Avatar picker options */
+.avatar-option {
+  width: 52px; height: 52px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.16s ease;
+  display: grid; place-items: center;
+  padding: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.avatar-option:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: var(--accent);
+  transform: scale(1.08);
+}
+.avatar-option.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-color: transparent;
+  box-shadow: 0 0 16px -4px var(--accent-glow);
+}
+.avatar-option img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+}
+.avatar-option .avatar-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  color: var(--faint);
+}
+
+/* Style badge */
+.avatar-style-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 8px;
+  background: rgba(0,0,0,0.6);
+  color: var(--accent-3);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}

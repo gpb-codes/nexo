@@ -1,0 +1,213 @@
+@use "./variables.scss" as *;
+
+// ============================================================
+// Custom Design — Segundo Cerebro (tema morado)
+// ============================================================
+
+// ---------- scrollbars ----------
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lightgray);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray);
+  background-clip: content-box;
+}
+
+// ---------- sidebar glassmorphism ----------
+.sidebar {
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+}
+
+.sidebar.left,
+.sidebar.right {
+  border-right: 1px solid var(--lightgray);
+  border-left: 1px solid var(--lightgray);
+}
+
+// ---------- explorer ----------
+.explorer {
+  .folder-title,
+  .file-title {
+    transition: color 0.2s ease, background 0.2s ease;
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin: 2px 0;
+  }
+
+  .folder-title:hover,
+  .file-title:hover {
+    background: var(--highlight);
+  }
+
+  .folder-title.active,
+  .file-title.active {
+    color: var(--secondary);
+    font-weight: $semiBoldWeight;
+  }
+}
+
+// ---------- graph view ----------
+.graph {
+  --graph-node: #7dd3fc;
+  --graph-edge: rgba(167, 139, 250, 0.28);
+  --graph-node-radius: 5px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--lightgray);
+  box-shadow: 0 10px 30px -14px rgba(94, 124, 201, 0.18);
+
+  .graph-outer {
+    background: linear-gradient(180deg, var(--light), #0a0e24);
+    border: 1px solid var(--lightgray);
+    box-shadow: none;
+  }
+
+  .global-graph-container {
+    background: var(--light);
+    border: 1px solid var(--lightgray);
+    box-shadow: 0 20px 40px -20px rgba(94, 124, 201, 0.28);
+  }
+
+  .global-graph-icon {
+    opacity: 0.45;
+    background: var(--lightgray);
+  }
+
+  .global-graph-icon:hover {
+    opacity: 1;
+    background: var(--lightgray);
+  }
+}
+
+body.saved-theme-dark .graph .graph-outer {
+  background: linear-gradient(180deg, #0a0e24, #05060f);
+}
+
+// ---------- search ----------
+.search {
+  .search-bar {
+    border-radius: 10px;
+    border: 1px solid var(--lightgray);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: var(--light);
+
+    &:focus-within {
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+    }
+  }
+}
+
+// ---------- article typography ----------
+article {
+  > h1 {
+    font-weight: $boldWeight;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--dark) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  > h2 {
+    border-bottom: 1px solid var(--lightgray);
+    padding-bottom: 0.3rem;
+    margin-top: 2rem;
+  }
+
+  p {
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+
+  blockquote {
+    border-left: 3px solid var(--secondary);
+    background: var(--highlight);
+    border-radius: 0 8px 8px 0;
+    padding: 0.8rem 1.2rem;
+    margin: 1rem 0;
+  }
+}
+
+// ---------- links ----------
+a.internal {
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    border-bottom-color: var(--secondary);
+  }
+}
+
+// ---------- callouts ----------
+.callout {
+  border-radius: 10px;
+  border: 1px solid var(--lightgray);
+  box-shadow: 0 2px 12px -4px rgba(139, 92, 246, 0.1);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 20px -4px rgba(139, 92, 246, 0.2);
+  }
+}
+
+// ---------- table of contents ----------
+.toc {
+  border-left: 2px solid var(--lightgray);
+  padding-left: 1rem;
+
+  a {
+    transition: color 0.2s ease, padding-left 0.2s ease;
+
+    &:hover {
+      color: var(--secondary);
+      padding-left: 0.3rem;
+    }
+  }
+}
+
+// ---------- footer ----------
+footer {
+  border-top: 1px solid var(--lightgray);
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
+
+// ---------- dark mode polish ----------
+[saved-theme="dark"] {
+  --highlight: rgba(139, 92, 246, 0.2);
+}
+
+// ---------- mobile ----------
+@media (max-width: 800px) {
+  .page {
+    padding: 0 1rem;
+  }
+
+  article > h1 {
+    font-size: 1.5rem;
+  }
+}
+
+// ---------- smooth transitions ----------
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}

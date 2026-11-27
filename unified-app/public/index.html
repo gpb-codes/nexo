@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nexo · Tu segundo cerebro unificado</title>
+<meta name="description" content="Centro de operaciones personal: conocimiento, tareas, proyectos, GitHub, voz e IA.">
+<meta name="theme-color" content="#8b5cf6">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">{"imports":{"three":"/vendor/build/three.module.js"}}</script>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <span class="orb orb-a"></span>
+  <span class="orb orb-b"></span>
+  <span class="orb orb-c"></span>
+  <canvas id="particles"></canvas>
+  <span class="grain"></span>
+</div>
+
+<!-- ============================ AUTH ============================ -->
+<div class="auth-shell" id="authContainer">
+  <div class="auth-visual" aria-hidden="true">
+    <div class="auth-visual-inner">
+      <span class="brand-mark large">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+        </svg>
+      </span>
+      <h2>Tu centro de operaciones personal</h2>
+      <p>Conocimiento, tareas, proyectos, GitHub, voz e IA en una sola experiencia.</p>
+      <ul class="auth-points">
+        <li>Segundo cerebro conectado</li>
+        <li>Tareas y proyectos aislados por usuario</li>
+        <li>PWA instalable en escritorio y móvil</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="auth-card">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+        </svg>
+      </span>
+      <div>
+        <h1 id="authSiteName">Nexo</h1>
+        <p class="subtitle" id="authSiteTagline">Tu segundo cerebro unificado</p>
+      </div>
+    </div>
+
+    <div class="auth-view active" id="authLogin">
+      <form id="loginForm" class="form" novalidate>
+        <div class="field">
+          <label for="loginEmail">Correo</label>
+          <div class="input-wrap">
+            <input type="email" id="loginEmail" placeholder="tu@correo.com" autocomplete="email" required>
+          </div>
+          <span class="error" id="loginEmailErr"></span>
+        </div>
+        <div class="field">
+          <label for="loginPass">Contraseña</label>
+          <div class="input-wrap">
+            <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" required>
+            <button type="button" class="toggle-pass" data-target="loginPass" aria-label="Mostrar contraseña">Ver</button>
+          </div>
+          <span class="error" id="loginPassErr"></span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+          <span class="btn-text">Iniciar sesión</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+        <p class="switch-text">¿No tienes cuenta? <button type="button" class="link-btn" data-auth="register">Crear cuenta</button></p>
+        <p class="legal-note">Al iniciar sesión aceptas los <a class="inline-link" href="/terminos" target="_blank" rel="noopener">términos y condiciones</a>.</p>
+      </form>
+    </div>
+
+    <div class="auth-view" id="authRegister">
+      <form id="registerForm" class="form" novalidate>
+        <div class="field">
+          <label for="regName">Nombre</label>
+          <div class="input-wrap">
+            <input type="text" id="regName" placeholder="Tu nombre" autocomplete="name" required minlength="2">
+          </div>
+          <span class="error" id="regNameErr"></span>
+        </div>
+        <div class="field">
+          <label for="regEmail">Correo</label>
+          <div class="input-wrap">
+            <input type="email" id="regEmail" placeholder="tu@correo.com" autocomplete="email" required>
+          </div>
+          <span class="error" id="regEmailErr"></span>
+        </div>
+        <div class="field">
+          <label for="regPass">Contraseña</label>
+          <div class="input-wrap">
+            <input type="password" id="regPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required minlength="8">
+          </div>
+          <span class="error" id="regPassErr"></span>
+        </div>
+        <div class="field">
+          <label for="regPass2">Confirmar</label>
+          <div class="input-wrap">
+            <input type="password" id="regPass2" placeholder="Repite la contraseña" autocomplete="new-password" required>
+          </div>
+          <span class="error" id="regPass2Err"></span>
+        </div>
+        <label class="checkbox">
+          <input type="checkbox" id="acceptTerms" required>
+          <span class="checkmark"></span>
+          <span>Acepto los <a class="inline-link" href="/terminos" target="_blank" rel="noopener">términos y condiciones</a></span>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
+          <span class="btn-text">Crear cuenta</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+        <p class="switch-text">¿Ya tienes cuenta? <button type="button" class="link-btn" data-auth="login">Iniciar sesión</button></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ APP ============================ -->
+<div class="app-shell" id="appContainer" hidden>
+  <button class="sidebar-overlay" id="sidebarOverlay" aria-label="Cerrar menú" hidden></button>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark small">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+        </svg>
+      </span>
+      <div>
+        <strong id="sidebarSiteName">Nexo</strong>
+        <span id="sidebarSiteTagline">Centro de operaciones</span>
+      </div>
+    </div>
+
+    <nav class="side-nav" id="tabNav" aria-label="Navegación principal">
+      <button class="tab-btn active" data-tab="inicio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Inicio</span>
+      </button>
+      <button class="tab-btn" data-tab="grafo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/><line x1="5" y1="19" x2="19" y2="19"/></svg>
+        <span>Segundo cerebro</span>
+      </button>
+      <button class="tab-btn" data-tab="tareas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Tareas</span>
+      </button>
+      <button class="tab-btn" data-tab="proyectos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>Proyectos</span>
+      </button>
+      <button class="tab-btn" data-tab="captura">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-3h6l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>Captura</span>
+      </button>
+      <button class="tab-btn" data-tab="contactos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Contactos</span>
+      </button>
+      <button class="tab-btn" data-tab="github">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.72c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.9 1.57 2.35 1.12 2.92.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.9-1.33 2.74-1.05 2.74-1.05.55 1.4.2 2.44.1 2.7a4 4 0 0 1 1.03 2.75c0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9v2.81c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+        <span>GitHub</span>
+      </button>
+      <button class="tab-btn" data-tab="voz">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        <span>Voz</span>
+      </button>
+      <button class="tab-btn" data-tab="chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Asistente IA</span>
+      </button>
+      <button class="tab-btn" data-tab="perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Perfil</span>
+      </button>
+      <button class="tab-btn" data-tab="ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.2.47.66.79 1.17.9H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Ajustes</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="mini-user">
+        <span class="user-avatar-small" id="sidebarAvatar"></span>
+        <div>
+          <strong id="sidebarName">Usuario</strong>
+          <span id="sidebarEmail">tu@correo.com</span>
+        </div>
+      </div>
+      <div class="sidebar-footer-actions">
+        <button class="btn btn-ghost btn-sm btn-block" id="downloadAppBtn" type="button">Descargar app</button>
+        <button class="btn btn-primary btn-sm btn-block" id="supportBtn" type="button">Apoyar Nexo (1000 CLP)</button>
+      </div>
+      <button class="btn btn-ghost btn-sm btn-block" id="logoutBtn" type="button">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <div class="main-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Abrir menú">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="page-heading">
+          <span class="page-kicker" id="pageKicker">Nexo</span>
+          <h1 id="pageTitle">Inicio</h1>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="globalSearch" placeholder="Buscar tareas o proyectos..." aria-label="Buscar">
+        </div>
+        <button class="icon-btn" id="themeToggle" type="button" aria-label="Cambiar tema">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+        <span class="user-badge" id="userBadge">
+          <span class="user-avatar-small" id="userAvatarSmall"></span>
+          <span id="userNameTop">Usuario</span>
+        </span>
+      </div>
+    </header>
+
+    <main class="main-content" id="tabContent">
+      <!-- Inicio -->
+      <section class="tab-panel active" id="tab-inicio">
+        <div class="hero-card">
+          <div class="hero-glow"></div>
+          <div class="hero-row">
+            <div class="avatar avatar-lg" id="userAvatar"></div>
+            <div>
+              <span class="hero-kicker">Bienvenido de nuevo</span>
+              <h2 id="welcomeName">Hola</h2>
+              <p class="subtitle" id="welcomeEmail">tu@correo.com</p>
+            </div>
+          </div>
+          <p class="hero-text">Tu conocimiento, tus tareas y tus herramientas en un solo lugar. Todo lo que ocurre en <span id="heroSiteName">Nexo</span>, de un vistazo.</p>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </span>
+            <div><strong id="statTasks">0</strong><span>Tareas pendientes</span></div>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </span>
+            <div><strong id="statProjects">0</strong><span>Proyectos activos</span></div>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </span>
+            <div><strong id="statNotes">0</strong><span>Notas y capturas</span></div>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.72c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.9 1.57 2.35 1.12 2.92.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.9-1.33 2.74-1.05 2.74-1.05.55 1.4.2 2.44.1 2.7a4 4 0 0 1 1.03 2.75c0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9v2.81c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+            </span>
+            <div><strong id="statGithub">—</strong><span>Repos públicos</span></div>
+          </article>
+        </div>
+
+        <div class="split-grid">
+          <section class="panel">
+            <div class="panel-head"><h2>Accesos rápidos</h2><span class="panel-hint">Tus herramientas</span></div>
+            <div class="quick-grid">
+              <a class="quick-btn" href="https://segundo-cerebro-e4v.pages.dev" target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/><line x1="5" y1="19" x2="19" y2="19"/></svg>
+                <span>Grafo</span>
+              </a>
+              <a class="quick-btn" href="https://github-access-console.pages.dev" target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-2.25-2.25"/></svg>
+                <span>Consola SSH</span>
+              </a>
+              <a class="quick-btn" href="https://github.com/gpb-codes/second-brain" target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.72c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.9 1.57 2.35 1.12 2.92.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.9-1.33 2.74-1.05 2.74-1.05.55 1.4.2 2.44.1 2.7a4 4 0 0 1 1.03 2.75c0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9v2.81c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+                <span>Bóveda</span>
+              </a>
+              <button class="quick-btn" id="quickVoiceBtn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                <span>Dictar</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2>Actividad reciente</h2><span class="panel-hint">Últimos movimientos</span></div>
+            <div class="activity-list" id="activityList">
+              <p class="empty-state">Sin actividad reciente. Crea una tarea o un proyecto para empezar.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- Segundo cerebro -->
+      <section class="tab-panel" id="tab-grafo" data-brain-root="grafoRoot">
+        <div id="grafoRoot" data-brain-loaded="0">
+          <div class="section-header">
+            <h2>Segundo cerebro</h2>
+            <p class="section-desc">Mapa 3D del conocimiento y lista curada de entradas de Quartz, todo desde tu bóveda.</p>
+          </div>
+
+          <div class="panel grafo-panel">
+            <div class="grafo-toolbar">
+              <input type="search" id="brainSearch" placeholder="Buscar nodos en el grafo..." aria-label="Buscar en el grafo" disabled>
+              <span class="grafo-stats" id="brainStats">Cargando grafo...</span>
+              <button class="btn btn-ghost btn-sm" id="brainResetBtn" type="button" title="Centrar el gráfico" disabled>Centrar</button>
+              <button class="btn btn-ghost btn-sm" id="brainRotateBtn" type="button" title="Activar rotación" disabled>Rotar</button>
+              <button class="btn btn-primary btn-sm" id="brainOpenBtn" type="button" disabled>Abrir en Quartz</button>
+            </div>
+            <canvas id="brainCanvas" class="grafo-canvas" width="800" height="420"></canvas>
+            <div class="grafo-legend" id="brainLegend" hidden>
+              <span>Leyenda: <span class="dot dot-accent">Núcleo</span> <span class="dot dot-link">Conexión</span> <span class="dot dot-star">Estrella</span></span>
+            </div>
+          </div>
+
+          <div class="panel quartz-panel">
+            <div class="grafo-toolbar">
+              <input type="search" id="quartzSearch" placeholder="Buscar entradas de Quartz..." aria-label="Buscar en Quartz" disabled>
+              <span class="grafo-stats" id="quartzStats">Cargando Quartz...</span>
+            </div>
+            <div class="quartz-list" id="quartzList"><p class="empty-state">Sin entradas cargadas.</p></div>
+          </div>
+
+          <div class="section-actions">
+            <a class="btn btn-ghost btn-sm" href="https://segundo-cerebro-e4v.pages.dev" target="_blank" rel="noreferrer">Abrir sitio publicado</a>
+            <a class="btn btn-ghost btn-sm" href="https://github.com/gpb-codes/second-brain" target="_blank" rel="noreferrer">Ver repositorio de la bóveda</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tareas -->
+      <section class="tab-panel" id="tab-tareas">
+        <div class="section-header">
+          <h2>Tareas</h2>
+          <div class="section-desc-row">
+            <p class="section-desc">Organiza lo que necesitas hacer. Las tareas ahora incluyen categoría, fecha límite y progreso.</p>
+            <span class="task-progress" id="taskProgress">0/0 completadas</span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="task-input-row">
+            <input type="text" id="taskInput" placeholder="Nueva tarea..." class="task-input" maxlength="200" autocomplete="off">
+            <input type="text" id="taskCategory" list="taskCategoryOptions" placeholder="Categoría..." aria-label="Categoría" maxlength="80" class="task-category">
+            <select id="taskPriority" class="task-priority" aria-label="Prioridad">
+              <option value="alta">Alta</option>
+              <option value="media" selected>Media</option>
+              <option value="baja">Baja</option>
+            </select>
+            <button class="btn btn-primary" id="addTaskBtn" type="button">Agregar</button>
+          </div>
+          <datalist id="taskCategoryOptions">
+            <option value="Lectura"></option>
+            <option value="Familia"></option>
+            <option value="Ejercicio"></option>
+            <option value="Salidas"></option>
+            <option value="Carrera"></option>
+            <option value="Organización"></option>
+          </datalist>
+          <div class="task-filters" id="taskFilters">
+            <button class="filter-btn active" data-filter="todas">Todas</button>
+            <button class="filter-btn" data-filter="pendiente">Pendientes</button>
+            <button class="filter-btn" data-filter="completada">Completadas</button>
+            <button class="filter-btn" data-filter="alta">Alta</button>
+            <button class="filter-btn" data-filter="media">Media</button>
+            <button class="filter-btn" data-filter="baja">Baja</button>
+          </div>
+          <div class="task-list" id="taskList"><p class="empty-state">Sin tareas. Agrega una arriba.</p></div>
+        </div>
+      </section>
+
+      <div class="modal" id="taskModal" hidden>
+        <div class="modal-backdrop" data-close-modal></div>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+          <button class="modal-close" id="taskModalClose" type="button" aria-label="Cerrar">×</button>
+          <h2 id="taskModalTitle">Editar tarea</h2>
+          <div class="task-modal-body" id="taskModalBody"></div>
+          <div class="task-modal-actions">
+            <button class="btn btn-primary" id="taskModalSave">Guardar cambios</button>
+            <button class="btn btn-danger" id="taskModalDelete">Eliminar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proyectos -->
+      <section class="tab-panel" id="tab-proyectos">
+        <div class="section-header">
+          <h2>Proyectos</h2>
+          <p class="section-desc">Agrupa tus iniciativas y mantén su estado bajo control.</p>
+        </div>
+        <div class="panel">
+          <div class="project-form">
+            <input type="text" id="projectNameInput" placeholder="Nombre del proyecto..." maxlength="120">
+            <input type="text" id="projectDescInput" placeholder="Descripción breve (opcional)" maxlength="1000">
+            <select id="projectPriority" aria-label="Prioridad del proyecto">
+              <option value="alta">Alta</option>
+              <option value="media" selected>Media</option>
+              <option value="baja">Baja</option>
+            </select>
+            <button class="btn btn-primary" id="addProjectBtn" type="button">Crear proyecto</button>
+          </div>
+          <div class="task-filters" id="projectFilters">
+            <button class="filter-btn active" data-filter="todos">Todos</button>
+            <button class="filter-btn" data-filter="activo">Activos</button>
+            <button class="filter-btn" data-filter="completado">Completados</button>
+          </div>
+          <div class="project-list" id="projectList"><p class="empty-state">Sin proyectos. Crea el primero arriba.</p></div>
+        </div>
+      </section>
+
+      <!-- Captura NFC y cámara -->
+      <section class="tab-panel" id="tab-captura">
+        <div class="section-header">
+          <h2>Captura</h2>
+          <p class="section-desc">Lee etiquetas NFC, usa la cámara o escribe una nota rápida. Todo queda guardado en tu cuenta.</p>
+        </div>
+
+        <div class="capture-grid">
+          <section class="panel capture-card">
+            <div class="capture-head">
+              <span class="capture-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 8.5a9 9 0 0 1 0 7"/><path d="M9.5 6a13 13 0 0 1 0 12"/><path d="M3 11a5 5 0 0 1 0 2"/><rect x="15" y="5" width="6" height="14" rx="1.5"/><path d="M18 8h.01"/></svg>
+              </span>
+              <div>
+                <h3>NFC</h3>
+                <p id="nfcSupport">Comprobando compatibilidad...</p>
+              </div>
+              <span class="status-indicator" id="nfcIndicator"></span>
+            </div>
+
+            <div class="capture-actions">
+              <button class="btn btn-primary btn-sm" id="nfcReadBtn" type="button">Leer etiqueta</button>
+              <button class="btn btn-ghost btn-sm" id="nfcStopBtn" type="button" hidden>Detener</button>
+            </div>
+
+            <div class="nfc-result" id="nfcResult">
+              <p class="empty-state">Acerca una etiqueta NFC compatible para leerla.</p>
+            </div>
+
+            <div class="capture-divider"></div>
+
+            <div class="field">
+              <label for="nfcWriteText">Escribir en una etiqueta</label>
+              <input type="text" id="nfcWriteText" maxlength="500" placeholder="Texto para grabar en la etiqueta...">
+            </div>
+            <button class="btn btn-ghost btn-sm" id="nfcWriteBtn" type="button">Escribir etiqueta</button>
+            <p class="field-hint">Web NFC solo funciona en Chrome para Android y con HTTPS. No lee tarjetas bancarias, documentos protegidos ni etiquetas que no sean NDEF.</p>
+          </section>
+
+          <section class="panel capture-card">
+            <div class="capture-head">
+              <span class="capture-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-3h6l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/></svg>
+              </span>
+              <div>
+                <h3>Cámara</h3>
+                <p id="cameraSupport">Comprobando cámara...</p>
+              </div>
+            </div>
+
+            <div class="camera-stage" id="cameraStage">
+              <video id="cameraVideo" playsinline muted hidden></video>
+              <img id="cameraPreview" alt="Foto capturada" hidden>
+              <div class="camera-placeholder" id="cameraPlaceholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-3h6l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/></svg>
+                <p>La cámara se activa solo cuando tú lo pides.</p>
+              </div>
+            </div>
+
+            <div class="capture-actions">
+              <button class="btn btn-primary btn-sm" id="cameraStartBtn" type="button">Abrir cámara</button>
+              <button class="btn btn-ghost btn-sm" id="cameraCaptureBtn" type="button" hidden>Capturar</button>
+              <button class="btn btn-ghost btn-sm" id="cameraStopBtn" type="button" hidden>Cerrar</button>
+            </div>
+
+            <div class="field" id="photoForm" hidden>
+              <label for="photoTitle">Título de la foto</label>
+              <input type="text" id="photoTitle" maxlength="120" placeholder="Ej. Recibo, pizarra, tarjeta">
+              <label for="photoContent">Nota</label>
+              <textarea id="photoContent" rows="2" maxlength="2000" placeholder="Añade una descripción..."></textarea>
+              <button class="btn btn-primary btn-sm" id="photoSaveBtn" type="button">Guardar foto</button>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel notes-panel">
+          <div class="panel-head">
+            <h2>Notas y capturas</h2>
+            <span class="panel-hint">Guardadas en tu cuenta</span>
+          </div>
+
+          <div class="note-form">
+            <div class="note-form-row">
+              <input type="text" id="noteTitle" maxlength="120" placeholder="Título de la nota">
+            </div>
+            <textarea id="noteContent" rows="2" maxlength="10000" placeholder="Escribe una nota rápida..."></textarea>
+            <div>
+              <button class="btn btn-primary btn-sm" id="addNoteBtn" type="button">Guardar nota</button>
+            </div>
+          </div>
+
+          <div class="task-filters" id="noteFilters">
+            <button class="filter-btn active" data-filter="todas">Todas</button>
+            <button class="filter-btn" data-filter="nota">Notas</button>
+            <button class="filter-btn" data-filter="contacto">Contactos</button>
+            <button class="filter-btn" data-filter="foto">Fotos</button>
+            <button class="filter-btn" data-filter="nfc">NFC</button>
+          </div>
+
+          <div class="note-list" id="notesList">
+            <p class="empty-state">Sin notas. Usa NFC, la cámara o el formulario para crear la primera.</p>
+          </div>
+        </section>
+      </section>
+
+      <!-- Contactos -->
+      <section class="tab-panel" id="tab-contactos">
+        <div class="section-header">
+          <h2>Contactos</h2>
+          <p class="section-desc">
+            Esta pantalla sirve para registrar posibles socios o colaboradores.
+            No es un catálogo de tu lista de contactos del teléfono: la información se guarda en Nexo
+            hasta que decidas copiarla, llamarla o abrirla en WhatsApp.
+          </p>
+        </div>
+        <div class="contactos-grid">
+          <section class="panel contact-form-card">
+            <div class="contact-form">
+              <div class="field">
+                <label for="contactName">Nombre</label>
+                <input type="text" id="contactName" maxlength="80" placeholder="Posible socio o colaborador">
+              </div>
+              <div class="field">
+                <label for="contactPhone">Teléfono</label>
+                <input type="tel" id="contactPhone" maxlength="30" inputmode="tel" placeholder="+34 600 111 222">
+              </div>
+              <div class="field">
+                <label for="contactEmail">Correo</label>
+                <input type="email" id="contactEmail" maxlength="160" placeholder="nombre@empresa.com">
+              </div>
+              <div class="field">
+                <label for="contactOrg">Organización</label>
+                <input type="text" id="contactOrg" maxlength="120" placeholder="empresa, proyecto o fuente">
+              </div>
+              <div class="field">
+                <label for="contactNote">Nota de trabajo</label>
+                <textarea id="contactNote" rows="3" maxlength="2000" placeholder="Cómo conoces a la persona, qué buscarías o lo que puede aportar"></textarea>
+              </div>
+              <div class="contact-form-actions">
+                <button class="btn btn-primary" id="saveContactBtn" type="button">Guardar contacto</button>
+                <button class="btn btn-ghost" id="resetContactBtn" type="button">Limpiar</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel contactos-list-card">
+            <div class="panel-head">
+              <h3>Contactos en Nexo</h3>
+              <span class="panel-hint" id="contactosCount">0 contactos</span>
+            </div>
+            <div class="contactos-list" id="contactosList">
+              <p class="empty-state">Aún no tienes contactos guardados. Usa el formulario de arriba.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- GitHub -->
+      <section class="tab-panel" id="tab-github">
+        <div class="section-header">
+          <h2>GitHub</h2>
+          <p class="section-desc">Actividad pública y accesos a tus herramientas de desarrollo.</p>
+        </div>
+        <div class="github-status" id="githubStatus">
+          <div class="status-card">
+            <div class="status-indicator" id="ghIndicator"></div>
+            <div>
+              <h3 id="ghStatusText">Verificando...</h3>
+              <p id="ghStatusDetail">Consultando la API pública de GitHub...</p>
+            </div>
+          </div>
+        </div>
+        <div class="github-detail" id="githubDetail"><p class="empty-state">Cargando actividad pública...</p></div>
+        <div class="section-actions">
+          <a class="btn btn-ghost btn-sm" href="https://github-access-console.pages.dev" target="_blank" rel="noreferrer">Consola GitHub</a>
+          <a class="btn btn-ghost btn-sm" href="https://github.com/gpb-codes/second-brain" target="_blank" rel="noreferrer">Repositorio de la bóveda</a>
+        </div>
+      </section>
+
+      <!-- Voz -->
+      <section class="tab-panel" id="tab-voz">
+        <div class="section-header">
+          <h2>Voz</h2>
+          <p class="section-desc">Dicta ideas o lee texto en voz alta. El micrófono solo se activa cuando tú lo pides.</p>
+        </div>
+        <div class="panel voice-container">
+          <div class="voice-controls">
+            <button class="btn btn-primary voice-btn" id="voiceBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <span id="voiceBtnText">Iniciar dictado</span>
+            </button>
+            <div class="voice-status" id="voiceStatus">Listo para escuchar</div>
+          </div>
+          <textarea id="voiceTranscript" placeholder="La transcripción aparecerá aquí..." rows="7"></textarea>
+          <div class="voice-actions">
+            <button class="btn btn-ghost btn-sm" id="voiceClearBtn" type="button">Limpiar</button>
+            <button class="btn btn-ghost btn-sm" id="voiceCopyBtn" type="button">Copiar</button>
+            <button class="btn btn-primary btn-sm" id="voiceSaveBtn" type="button">Guardar como tarea</button>
+          </div>
+          <div class="voice-tts">
+            <h3>Leer texto</h3>
+            <textarea id="ttsText" placeholder="Escribe texto para leer en voz alta..." rows="3"></textarea>
+            <button class="btn btn-ghost btn-sm" id="ttsBtn" type="button">Leer en voz alta</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Asistente -->
+      <section class="tab-panel" id="tab-chat">
+        <div class="section-header">
+          <h2>Asistente IA</h2>
+          <p class="section-desc">El chat se activará cuando conectes un backend real de OpenCode o Hermes.</p>
+        </div>
+        <div class="panel chat-container">
+          <div class="chat-notice">IA no conectada. No se simulan respuestas.</div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg chat-msg-ai">
+              <div class="chat-avatar">AI</div>
+              <div class="chat-bubble">Aún no hay un modelo conectado. Configura un endpoint autorizado para empezar a conversar.</div>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Escribe tu mensaje..." class="chat-input">
+            <button class="btn btn-primary btn-sm" id="chatSendBtn" type="button">Enviar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Perfil -->
+      <section class="tab-panel" id="tab-perfil">
+        <div class="section-header">
+          <h2>Perfil</h2>
+          <p class="section-desc">Tu cuenta y tu sesión. La personalización está en Ajustes.</p>
+        </div>
+        <div class="profile-grid">
+          <div class="panel profile-card">
+            <div class="profile-header">
+              <div class="avatar avatar-lg" id="profileAvatar"></div>
+              <div>
+                <h3 id="profileName">Usuario</h3>
+                <p class="subtitle" id="profileEmail">tu@correo.com</p>
+              </div>
+            </div>
+            <div class="profile-section">
+              <h4>Datos de la cuenta</h4>
+              <div class="account-info">
+                <div class="info-row"><span class="info-label">Nombre</span><span class="info-value" id="infoName">—</span></div>
+                <div class="info-row"><span class="info-label">Correo</span><span class="info-value" id="infoEmail">—</span></div>
+                <div class="info-row"><span class="info-label">Registrado</span><span class="info-value" id="infoDate">—</span></div>
+              </div>
+            </div>
+            <div class="profile-section">
+              <h4>Aplicación</h4>
+              <p class="section-desc" id="installStatus">Nexo está instalable como app web. Usa “Instalar como app” en el navegador si el sistema lo pide.</p>
+              <button class="btn btn-primary btn-block" id="installBtn" type="button" hidden>Instalar como app</button>
+              <button class="btn btn-danger btn-block" id="logoutBtnProfile" type="button">Cerrar sesión</button>
+            </div>
+          </div>
+
+          <div class="panel profile-card">
+            <div class="profile-section">
+              <h4>Personalización</h4>
+              <p class="section-desc">Cambia el nombre de la web, el subtítulo, la descripción, los colores, el tema y tu avatar.</p>
+              <button class="btn btn-primary btn-block" id="goToSettingsBtn" type="button">Ir a Ajustes</button>
+            </div>
+            <div class="profile-section">
+              <h4>Privacidad</h4>
+              <p class="section-desc">Tus tareas y proyectos están aislados por cuenta. No se comparten con otros usuarios.</p>
+            </div>
+            <div class="profile-section">
+              <h4>Legal</h4>
+              <a class="btn btn-ghost btn-block" href="/terminos" target="_blank" rel="noopener">Términos y condiciones</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ajustes -->
+      <section class="tab-panel" id="tab-ajustes">
+        <div class="section-header">
+          <h2>Ajustes</h2>
+          <p class="section-desc">Personaliza la identidad de la web y tu experiencia. Los cambios se guardan en tu cuenta.</p>
+        </div>
+        <div class="settings-grid">
+          <div class="panel settings-card">
+            <div class="profile-section">
+              <h4>Identidad de la web</h4>
+              <div class="field">
+                <label for="siteNameInput">Nombre de la web</label>
+                <div class="input-wrap"><input type="text" id="siteNameInput" maxlength="40" placeholder="Nexo"></div>
+                <span class="field-hint">Aparece en la barra lateral, la pestaña del navegador y el acceso.</span>
+              </div>
+              <div class="field">
+                <label for="siteTaglineInput">Subtítulo</label>
+                <div class="input-wrap"><input type="text" id="siteTaglineInput" maxlength="80" placeholder="Centro de operaciones"></div>
+                <span class="field-hint">Texto corto bajo el nombre. Puede quedar vacío.</span>
+              </div>
+              <div class="field">
+                <label for="siteDescriptionInput">Descripción</label>
+                <textarea id="siteDescriptionInput" rows="2" maxlength="160" placeholder="Tu segundo cerebro unificado"></textarea>
+                <span class="field-hint">Se usa en el título del navegador y en la pantalla de acceso.</span>
+              </div>
+            </div>
+
+            <div class="profile-section">
+              <h4>Apariencia</h4>
+              <div class="field">
+                <label>Color de acento</label>
+                <div class="color-picker" id="colorPicker">
+                  <button class="color-swatch" data-color="#8b5cf6" style="--c:#8b5cf6" aria-label="Violeta"></button>
+                  <button class="color-swatch" data-color="#ec4899" style="--c:#ec4899" aria-label="Rosa"></button>
+                  <button class="color-swatch" data-color="#3b82f6" style="--c:#3b82f6" aria-label="Azul"></button>
+                  <button class="color-swatch" data-color="#10b981" style="--c:#10b981" aria-label="Verde"></button>
+                  <button class="color-swatch" data-color="#f59e0b" style="--c:#f59e0b" aria-label="Ámbar"></button>
+                  <button class="color-swatch" data-color="#ef4444" style="--c:#ef4444" aria-label="Rojo"></button>
+                </div>
+              </div>
+              <div class="field">
+                <label>Tema</label>
+                <div class="theme-picker" id="themePicker">
+                  <button class="theme-option" data-theme="oscuro">Oscuro</button>
+                  <button class="theme-option" data-theme="claro">Claro</button>
+                </div>
+              </div>
+              <div class="field">
+                <label>Avatar</label>
+                <div class="avatar-picker" id="avatarPicker"></div>
+              </div>
+            </div>
+
+            <div class="profile-section">
+              <h4>Tu nombre</h4>
+              <div class="field">
+                <label for="displayName">Nombre para mostrar</label>
+                <div class="input-wrap"><input type="text" id="displayName" maxlength="80" placeholder="Tu nombre"></div>
+                <span class="field-hint">Se usa en el saludo y en la barra lateral. No cambia tu nombre legal.</span>
+              </div>
+            </div>
+
+            <div class="profile-section">
+              <h4>Asistente de IA</h4>
+              <div class="field">
+                <label for="aiApiKey">API key del asistente de IA</label>
+                <div class="input-wrap"><input type="password" id="aiApiKey" maxlength="512" autocomplete="new-password" placeholder="Ingresa tu API key..."></div>
+                <span class="field-hint">Se usa solo en las conversaciones del Asistente IA y queda en tu cuenta.</span>
+              </div>
+              <div class="field">
+                <label for="aiModel">Modelo (opcional)</label>
+                <div class="input-wrap"><input type="text" id="aiModel" maxlength="80" placeholder="Ej. gpt-5-nano, llama-3.3-70b..."></div>
+              </div>
+              <div class="field">
+                <label for="aiBaseUrl">Endpoint (opcional)</label>
+                <div class="input-wrap"><input type="url" id="aiBaseUrl" maxlength="200" placeholder="https://api.ejemplo.com/v1"></div>
+              </div>
+              <div class="settings-actions">
+                <button class="btn btn-primary" id="saveAiBtn" type="button">Guardar API key</button>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button class="btn btn-primary" id="savePrefsBtn" type="button">Guardar cambios</button>
+              <button class="btn btn-ghost" id="resetSiteBtn" type="button">Restablecer identidad</button>
+            </div>
+          </div>
+
+          <div class="panel settings-card">
+            <div class="profile-section">
+              <h4>Vista previa</h4>
+              <div class="site-preview" aria-live="polite">
+                <span class="brand-mark small">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong id="sitePreviewName">Nexo</strong>
+                  <span id="sitePreviewTagline">Centro de operaciones</span>
+                </div>
+              </div>
+              <p class="section-desc" id="sitePreviewDescription">Tu segundo cerebro unificado</p>
+            </div>
+            <div class="profile-section">
+              <h4>Consejo</h4>
+              <p class="section-desc">Un nombre corto funciona mejor en móvil. El subtítulo y la descripción pueden quedar vacíos.</p>
+            </div>
+            <div class="profile-section">
+              <h4>Legal</h4>
+              <a class="btn btn-ghost btn-block" href="/terminos" target="_blank" rel="noopener">Términos y condiciones</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="modal" id="noteModal" hidden>
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+    <button class="modal-close" id="noteModalClose" type="button" aria-label="Cerrar">×</button>
+    <div id="noteModalBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="supportModal" hidden>
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-card support-card" role="dialog" aria-modal="true" aria-labelledby="supportModalTitle">
+    <button class="modal-close" id="supportModalClose" type="button" aria-label="Cerrar">×</button>
+    <div id="supportModalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="avatars.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
