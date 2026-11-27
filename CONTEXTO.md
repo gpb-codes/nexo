@@ -1,87 +1,136 @@
-# CONTEXTO — Nexo
+# Nexo — Contexto general
 
-## Qué es Nexo
-Centro de operaciones personal que unifica segundo cerebro (Obsidian/Quartz), tareas, proyectos, notas, contactos, fotos, capturas NFC/cámara, Asistente IA con API key, perfil, GitHub y voz. Núcleo actual: `unified-app/`.
+**Repositorio:** https://github.com/gpb-codes/nexo  
+**Fecha:** 27 de noviembre de 2026  
+**Nota:** este documento reemplaza todos los Markdown anteriores del proyecto, incluido el README original.
 
-## Ubicación de proyectos
-- `github-access-console/` — consola SSH local/estática.
-- `auth-portal/` — portal de autenticación (legacy, 1 usuario).
-- `unified-app/` — app unificada (Nexo core).
-- `quartz/` — publicación del segundo cerebro.
-- `~/Documentos/general/` — bóveda de Obsidian (repo privado).
+## 1. Qué es Nexo
 
-## Qué funciona realmente
-- Registro/login/logout con sesiones en cookie HttpOnly.
-- Contraseñas con PBKDF2 + migración desde SHA-256 legacy.
-- Tareas y proyectos CRUD aislados por usuario (sesión del servidor).
-- Preferencias por usuario, incluyendo tema claro/oscuro.
-- Identidad de la web por usuario en `site_settings`: nombre, subtítulo, descripción, tema, acento, avatar y nombre visible.
-- Notas, contactos y fotos en `notes`, aislados por cuenta.
-- Pantalla de Contactos para posibles socios/colaboradores con acceso directo a WhatsApp.
-- Mapa 3D del segundo cerebro en forma de universo con Three.js (`brain.js`, `brain-graph.json`) + leyenda, controles de centro/rotación y lista curada de Quartz.
-- Asistente IA con campo para API key en Ajustes (`users.ai_api_key`).
-- Captura real con Web NFC (solo Chrome Android + HTTPS + etiquetas NDEF) y cámara (`getUserMedia`, HTTPS/localhost).
-- Página pública de términos y condiciones en `/terminos`.
-- GitHub: consulta real de la API pública (perfil y repositorios).
-- Voz (Web Speech API) en navegadores compatibles.
-- PWA con service worker (caché solo estáticos) e instalación.
+Nexo es un centro de operaciones personal que unifica segundo cerebro, tareas, proyectos, notas, contactos, fotos, capturas NFC/cámara, perfil, GitHub, voz y un asistente IA configurable. Existe como aplicación web, como sitio del segundo cerebro y como app nativa Android en migración gradual.
 
-## Producción
-- URL: https://unified-app-n8d.pages.dev
-- Proyecto Pages: `unified-app`.
-- Base D1 remota: `unified-app-db`.
-- Migraciones remotas aplicadas: `0001_initial.sql`, `0002_add_theme.sql`, `0003_projects.sql`, `0004_site_settings.sql`, `0005_notes.sql`, `0006_ai_assistant.sql`.
-- Despliegue verificado el 25 nov 2026.
+La versión web sigue activa y no se retira hasta alcanzar paridad funcional en móvil.
 
-## Pendiente
-- Migración del usuario existente de `auth-portal-db`.
-- Rate limiting, CSRF avanzado.
-- Integración real de IA, Hermes/Coucou (GitHub ya usa API pública real).
-- Privacidad efectiva de Quartz.
-- CI/CD de la bóveda.
-- Repositorio Git para `unified-app` (no existe todavía).
+## 2. Proyectos del repositorio
 
-## Decisiones vigentes
-- Base principal de Nexo: `unified-app-db`.
-- Sesiones server-side en D1.
-- PBKDF2 en lugar de Argon2id por compatibilidad con el runtime.
-- No se fusionaron físicamente todos los repositorios.
+| Ruta | Rol | Producción |
+|---|---|---|
+| `unified-app/` | Núcleo web: auth, tareas, proyectos, notas, ajustes, PWA, captura y grafo | https://unified-app-n8d.pages.dev |
+| `quartz/` | Segundo cerebro original publicado con Quartz | https://segundo-cerebro-e4v.pages.dev |
+| `next-quartz/` | Reemplazo del segundo cerebro con Next.js, Three.js y anime.js | https://segundo-cerebro-next.pages.dev |
+| `mobile/` | App nativa Android con Expo/React Native | APK release en `~/Descargas/Nexo-mobile-release.apk` |
+| `auth-portal/` | Portal legacy | legacy |
+| `github-access-console/` | Consola local/estática para GitHub | local |
 
-## Comandos habituales
-- Dev: `cd unified-app && npx wrangler pages dev public --port 8799`
-- Migración local: `npx wrangler d1 execute unified-app-db --local --file=migrations/0006_ai_assistant.sql`
-- Migración remota: `npx wrangler d1 execute unified-app-db --remote --file=migrations/0006_ai_assistant.sql`
-- Despliegue: `npx wrangler pages deploy public --project-name unified-app --branch main`
-- No usar `wrangler d1 migrations apply` con esta base: la migración `0002` no es repetible y la tabla `d1_migrations` está vacía por la deriva histórica.
+## 3. Funciones implementadas
 
-## Pruebas ejecutadas
-- Registro, login, logout, me, tareas, preferencias y proyectos mediante curl en dev local.
-- Flujo completo en producción con usuario temporal: registro, sesión, `/api/me`, creación de proyecto, creación de tarea, cambio de tema, listados y logout.
-- Datos temporales de producción eliminados; conteos finales en 0.
-- Migración de contraseña SHA-256 legacy a PBKDF2 verificada.
-- Acceso no autenticado devuelve 401; sesión cerrada también devuelve 401.
-- Service worker activo y sin errores de consola en producción.
-- Captura local verificada: nota manual, listado, detalle, filtros y borrado.
-- Pantalla de Contactos verificada: guardado por UI, acceso WhatsApp en la lista y texto honesto.
-- Mapa 3D verificado en el navegador: canvas activo, `brainStats` con nodos/conexiones y sin errores de consola.
-- Ajustes verificados: identidad de la web persistida, nombre visible restablecido al vaciar el campo y API key del asistente guardada.
-- Cámara sin dispositivo: la interfaz muestra un error honesto y no simula la captura.
-- Web NFC no disponible en escritorio: los controles se deshabilitan y se explica la limitación.
-- Cámara en producción requiere HTTPS; NFC real requiere Android con Chrome y etiqueta NDEF física.
+### Web (`unified-app/`)
 
-## Riesgos conocidos
-- Sin rate limiting.
-- Sin protección CSRF explícita más allá de SameSite.
-- Sitio Quartz puede exponer contenido si no se configura Access.
-- `auth-portal` duplica código y sigue usando SHA-256.
+- Registro, login y logout reales; PBKDF2; sesiones opacas en D1; cookie HttpOnly para web.
+- Bearer token para clientes móviles: `/api/mobile/login`, `/api/mobile/register`; `Authorization: Bearer` soportado.
+- Tareas CRUD con categoría, fecha límite, prioridad, filtros, progreso y edición.
+- Proyectos CRUD.
+- Notas, contactos y fotos en `notes`; imágenes comprimidas como data URL.
+- NFC real (`NDEFReader`) y cámara real (`getUserMedia`), con mensajes honestos cuando no hay soporte.
+- Pantalla de Contactos para socios/colaboradores con acceso a WhatsApp.
+- Ajustes: identidad del sitio, tema, acento, avatar, nombre visible y API key del asistente IA.
+- Términos en `/terminos`.
+- PWA instalable, service worker network-first y descarga autodefinida.
+- Grafo 3D estilo universo con Three.js y lista de entradas de Quartz.
+- Botón de apoyo con datos bancarios y enlace de transferencia.
+- Migraciones D1: `0001`–`0007`.
 
-## Próximo paso recomendado
-Migrar el usuario existente de `auth-portal-db` a `unified-app-db`, configurar Cloudflare Access para Quartz y crear un repositorio Git para `unified-app`.
+### Segundo cerebro
 
-## Actualización — rediseño integral
-- Interfaz reconstruida con sidebar adaptable, topbar con búsqueda global, tema claro/oscuro y navegación móvil.
-- Módulo de proyectos con CRUD completo (`projects`, `/api/projects`).
-- Dashboard con métricas de tareas, proyectos, notas y GitHub.
-- GitHub consulta la API pública real (perfil y repositorios).
-- PWA con service worker network-first, `offline.html` e instalación.
-- Migraciones: `0002_add_theme.sql`, `0003_projects.sql`.
+- Quartz original con grafo suave y estilos personalizados.
+- Next.js con 322 nodos y 718 conexiones.
+- Grafo JARVIS: HUD, nombres de archivo bajo los nodos, conexiones curvas, búsqueda, WASD/flechas y joystick digital.
+- Notas estáticas generadas desde `contentIndex.json`.
+
+### Móvil (`mobile/`)
+
+- Expo SDK 58, React Native 0.88, TypeScript, Expo Router.
+- TanStack Query, Zustand, expo-sqlite, SecureStore, cámara, notificaciones y Reanimated.
+- Login/registro con SecureStore; sesión verificada y logout.
+- Tareas, proyectos, notas, contactos y ajustes.
+- Caché SQLite y outbox básico para tareas.
+- APK release generado e instalado por USB en `com.gpbcode.nexo`.
+
+## 4. Arquitectura de datos
+
+D1 `unified-app-db`:
+
+- `users`, `sessions`, `tasks`, `projects`, `site_settings`, `notes`.
+- `users` incluye `ai_api_key`, `ai_model`, `ai_base_url`.
+- `tasks` incluye `category` y `due_date`.
+- Sesiones: token opaco; solo hash SHA-256 en D1; expiración y revocación.
+- Imágenes históricas: data URL en `notes`; pendiente evaluar migración a R2.
+
+> No usar `wrangler d1 migrations apply`: existe deriva histórica. Aplicar migraciones con `wrangler d1 execute --file=...`.
+
+## 5. Diseño
+
+- Minimal, plateado, azul cielo, blanco metálico y morado suave.
+- Morado: `#8b5cf6` / `#a78bfa`; cielo: `#7dd3fc` / `#67e8f9`.
+- Fondos oscuros `#050924` / `#0f1022`; claros `#f8fafc` / `#eef2f8`.
+- `Inter` para UI y monoespacio para metadatos/HUD.
+- Sidebar fija en escritorio, drawer en móvil, targets táctiles ≥42 px.
+- Grafo: universo con estrellas, núcleo pulsante, etiquetas, conexiones curvas y HUD JARVIS.
+
+## 6. Estado operativo
+
+- Web, Quartz y Next Quartz desplegadas y verificadas.
+- Repositorio GitHub público: https://github.com/gpb-codes/nexo.
+- APK release: 116 MB, `com.gpbcode.nexo`, v0.1.0, compileSdk 37.
+- Dispositivo de prueba detectado por USB: `2806ac560d26`.
+- App abierta por `adb` sin errores fatales en `logcat`.
+
+## 7. Pendiente
+
+- Sincronización remota del outbox y resolución de conflictos.
+- Cámara nativa y NFC Android; después iOS.
+- Búsqueda global en móvil.
+- Backend real para el asistente IA con proxy de secretos.
+- Prueba de rendimiento del grafo 3D nativo o fallback 2D.
+- Notificaciones y deep links.
+- No retirar la web hasta completar paridad y rollback.
+
+## 8. Reglas para continuar
+
+- No eliminar la versión web ni sus despliegues.
+- No simular NFC, cámara ni IA.
+- No exponer secretos ni datos privados.
+- No ejecutar migraciones destructivas.
+- Citar rutas de archivo y funciones reales.
+- Verificar móvil, tablet y escritorio al cambiar UI.
+- Mantener la identidad visual y el estilo JARVIS.
+
+## 9. Comandos útiles
+
+```bash
+# Web
+cd unified-app
+npx wrangler pages deploy public --project-name unified-app --branch main
+
+# Quartz
+cd quartz
+npx quartz build
+npx wrangler pages deploy public --project-name segundo-cerebro --branch main --commit-dirty=true
+
+# Next Quartz
+cd next-quartz
+npm run build
+npx wrangler pages deploy out --project-name segundo-cerebro-next --branch main --commit-dirty=true
+
+# Móvil
+cd mobile
+npx tsc --noEmit
+npx expo-doctor
+cd android
+./gradlew assembleRelease
+
+# Instalar por USB
+export PATH="$HOME/.local/share/android-sdk/platform-tools:$PATH"
+adb devices -l
+adb -s 2806ac560d26 install -r ~/Descargas/Nexo-mobile-release.apk
+adb -s 2806ac560d26 logcat -d -t 300
+```
