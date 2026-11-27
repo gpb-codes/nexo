@@ -10,51 +10,24 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { theme } from "../src/theme/tokens";
-import { createTask, deleteTask, listTasks, updateTask } from "../src/features/tasks/api";
-import type { TaskPriority, TaskStatus } from "../src/features/tasks/types";
+import { theme } from "../src/presentation/theme/tokens";
+import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from "../src/presentation/hooks/use-tasks";
+import type { TaskPriority } from "../src/domain/entities/task";
 
 const PRIORITIES: TaskPriority[] = ["alta", "media", "baja"];
 
 export default function TasksScreen() {
   const scheme = useColorScheme() ?? "dark";
   const tokens = theme[scheme];
-  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("media");
 
-  const tasks = useQuery({ queryKey: ["tasks"], queryFn: listTasks });
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["tasks"] });
-
-  const add = useMutation({
-    mutationFn: () =>
-      createTask({
-        title: title.trim(),
-        priority,
-        category: category.trim() || undefined,
-        due_date: dueDate.trim() || undefined,
-      }),
-    onSuccess: async () => {
-      setTitle("");
-      setCategory("");
-      setDueDate("");
-      await invalidate();
-    },
-  });
-
-  const toggle = useMutation({
-    mutationFn: (task: { id: string; status: TaskStatus }) =>
-      updateTask(task.id, { status: task.status === "completada" ? "pendiente" : "completada" }),
-    onSuccess: invalidate,
-  });
-
-  const remove = useMutation({
-    mutationFn: deleteTask,
-    onSuccess: invalidate,
-  });
+  const tasks = useTasks();
+  const add = useCreateTask();
+  const toggle = useUpdateTask();
+  const remove = useDeleteTask();
 
   return (
     <View style={[styles.container, { backgroundColor: tokens.background }]}>
@@ -99,7 +72,23 @@ export default function TasksScreen() {
         </View>
         <Pressable
           style={[styles.button, { backgroundColor: tokens.accent }]}
-          onPress={() => add.mutate()}
+          onPress={() =>
+            add.mutate(
+              {
+                title: title.trim(),
+                priority,
+                category: category.trim() || undefined,
+                due_date: dueDate.trim() || undefined,
+              },
+              {
+                onSuccess: () => {
+                  setTitle("");
+                  setCategory("");
+                  setDueDate("");
+                },
+              },
+            )
+          }
           disabled={add.isPending || !title.trim()}
         >
           {add.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Agregar</Text>}
@@ -116,7 +105,15 @@ export default function TasksScreen() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <View style={[styles.card, { borderColor: tokens.border, backgroundColor: tokens.panel }]}>
-              <Pressable onPress={() => toggle.mutate({ id: item.id, status: item.status })} style={styles.cardMain}>
+              <Pressable
+                onPress={() =>
+                  toggle.mutate({
+                    id: item.id,
+                    patch: { status: item.status === "completada" ? "pendiente" : "completada" },
+                  })
+                }
+                style={styles.cardMain}
+              >
                 <View style={[styles.check, item.status === "completada" && { backgroundColor: tokens.accent }]} />
                 <View style={styles.cardText}>
                   <Text style={[styles.cardTitle, { color: tokens.text, opacity: item.status === "completada" ? 0.5 : 1 }]}>

@@ -11,45 +11,23 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { theme } from "../src/theme/tokens";
-import { createNote, deleteNote, listNotes } from "../src/features/notes/api";
-import type { Note } from "../src/features/notes/types";
+import { theme } from "../src/presentation/theme/tokens";
+import { useCreateNote, useDeleteNote, useNotes } from "../src/presentation/hooks/use-notes";
+import type { Note } from "../src/domain/entities/note";
 
 export default function ContactsScreen() {
   const scheme = useColorScheme() ?? "dark";
   const tokens = theme[scheme];
-  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [org, setOrg] = useState("");
   const [note, setNote] = useState("");
 
-  const all = useQuery({ queryKey: ["notes"], queryFn: listNotes });
+  const all = useNotes();
   const contacts = (all.data ?? []).filter((item) => item.kind === "contacto");
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["notes"] });
-
-  const add = useMutation({
-    mutationFn: () =>
-      createNote({
-        kind: "contacto",
-        title: name.trim() || phone.trim() || "Contacto",
-        content: note.trim(),
-        source: "manual",
-        contact: { name: name.trim(), phone: phone.trim(), email: email.trim(), org: org.trim() },
-      }),
-    onSuccess: async () => {
-      setName("");
-      setPhone("");
-      setEmail("");
-      setOrg("");
-      setNote("");
-      await invalidate();
-    },
-  });
-
-  const remove = useMutation({ mutationFn: deleteNote, onSuccess: invalidate });
+  const add = useCreateNote();
+  const remove = useDeleteNote();
 
   const openWhatsApp = async (value?: string) => {
     const digits = (value || "").replace(/\D/g, "");
@@ -75,7 +53,26 @@ export default function ContactsScreen() {
         <TextInput style={[styles.input, { borderColor: tokens.border, color: tokens.text, backgroundColor: tokens.panel }]} placeholder="Correo" placeholderTextColor={tokens.muted} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
         <TextInput style={[styles.input, { borderColor: tokens.border, color: tokens.text, backgroundColor: tokens.panel }]} placeholder="Organización" placeholderTextColor={tokens.muted} value={org} onChangeText={setOrg} />
         <TextInput style={[styles.input, styles.multiline, { borderColor: tokens.border, color: tokens.text, backgroundColor: tokens.panel }]} placeholder="Nota de trabajo" placeholderTextColor={tokens.muted} value={note} onChangeText={setNote} multiline />
-        <Pressable style={[styles.button, { backgroundColor: tokens.accent }]} onPress={() => add.mutate()} disabled={add.isPending || (!name && !phone && !email)}>
+        <Pressable style={[styles.button, { backgroundColor: tokens.accent }]} onPress={() =>
+          add.mutate(
+            {
+              kind: "contacto",
+              title: name.trim() || phone.trim() || "Contacto",
+              content: note.trim(),
+              source: "manual",
+              contact: { name: name.trim(), phone: phone.trim(), email: email.trim(), org: org.trim() },
+            },
+            {
+              onSuccess: () => {
+                setName("");
+                setPhone("");
+                setEmail("");
+                setOrg("");
+                setNote("");
+              },
+            },
+          )
+        } disabled={add.isPending || (!name && !phone && !email)}>
           {add.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Guardar contacto</Text>}
         </Pressable>
         {add.error instanceof Error && <Text style={styles.error}>{add.error.message}</Text>}

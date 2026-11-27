@@ -11,32 +11,36 @@ import {
   useColorScheme,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { login, register } from "../src/infrastructure/auth/auth";
-import { theme } from "../src/theme/tokens";
+import { useLogin, useRegister } from "../src/presentation/hooks/use-auth";
+import { theme } from "../src/presentation/theme/tokens";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const scheme = useColorScheme() ?? "dark";
   const tokens = theme[scheme];
   const [mode, setMode] = useState<"login" | "register">("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const loginMutation = useLogin();
+  const registerMutation = useRegister();
+  const active = mode === "login" ? loginMutation : registerMutation;
 
-  const mutation = useMutation({
-    mutationFn: async () =>
-      mode === "login"
-        ? login(email.trim(), password)
-        : register(name.trim(), email.trim(), password),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
-      router.replace("/");
-    },
-  });
+  const submit = () => {
+    if (mode === "login") {
+      loginMutation.mutate(
+        { email: email.trim(), password },
+        { onSuccess: () => router.replace("/") },
+      );
+    } else {
+      registerMutation.mutate(
+        { name: name.trim(), email: email.trim(), password },
+        { onSuccess: () => router.replace("/") },
+      );
+    }
+  };
 
-  const error = mutation.error instanceof Error ? mutation.error.message : null;
+  const error = active.error instanceof Error ? active.error.message : null;
 
   return (
     <KeyboardAvoidingView
@@ -86,19 +90,23 @@ export default function LoginScreen() {
 
         <Pressable
           style={[styles.button, { backgroundColor: tokens.accent }]}
-          onPress={() => mutation.mutate()}
-          disabled={mutation.isPending}
+          onPress={submit}
+          disabled={active.isPending}
         >
-          {mutation.isPending ? (
+          {active.isPending ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>
-              {mode === "login" ? "Entrar" : "Crear cuenta"}
-            </Text>
+            <Text style={styles.buttonText}>{mode === "login" ? "Entrar" : "Crear cuenta"}</Text>
           )}
         </Pressable>
 
-        <Pressable onPress={() => { setMode(mode === "login" ? "register" : "login"); mutation.reset(); }}>
+        <Pressable
+          onPress={() => {
+            setMode(mode === "login" ? "register" : "login");
+            loginMutation.reset();
+            registerMutation.reset();
+          }}
+        >
           <Text style={[styles.switch, { color: tokens.sky }]}>
             {mode === "login" ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
           </Text>

@@ -16,3 +16,5 @@ export type CreateProjectInput = {
   description?: string;
   priority: ProjectPriority;
 };
+
+export type UpdateProjectInput = Partial<Pick<Project, "name" | "description" | "status" | "priority">>;

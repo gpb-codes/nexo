@@ -10,40 +10,28 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { theme } from "../src/theme/tokens";
-import { createProject, deleteProject, listProjects, updateProject } from "../src/features/projects/api";
-import type { ProjectPriority, ProjectStatus } from "../src/features/projects/types";
+import { theme } from "../src/presentation/theme/tokens";
+import {
+  useCreateProject,
+  useDeleteProject,
+  useProjects,
+  useUpdateProject,
+} from "../src/presentation/hooks/use-projects";
+import type { ProjectPriority } from "../src/domain/entities/project";
 
 const PRIORITIES: ProjectPriority[] = ["alta", "media", "baja"];
 
 export default function ProjectsScreen() {
   const scheme = useColorScheme() ?? "dark";
   const tokens = theme[scheme];
-  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<ProjectPriority>("media");
 
-  const projects = useQuery({ queryKey: ["projects"], queryFn: listProjects });
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["projects"] });
-
-  const add = useMutation({
-    mutationFn: () => createProject({ name: name.trim(), description: description.trim(), priority }),
-    onSuccess: async () => {
-      setName("");
-      setDescription("");
-      await invalidate();
-    },
-  });
-
-  const toggle = useMutation({
-    mutationFn: (project: { id: string; status: ProjectStatus }) =>
-      updateProject(project.id, { status: project.status === "completado" ? "activo" : "completado" }),
-    onSuccess: invalidate,
-  });
-
-  const remove = useMutation({ mutationFn: deleteProject, onSuccess: invalidate });
+  const projects = useProjects();
+  const add = useCreateProject();
+  const toggle = useUpdateProject();
+  const remove = useDeleteProject();
 
   return (
     <View style={[styles.container, { backgroundColor: tokens.background }]}>
@@ -79,7 +67,17 @@ export default function ProjectsScreen() {
         </View>
         <Pressable
           style={[styles.button, { backgroundColor: tokens.accent }]}
-          onPress={() => add.mutate()}
+          onPress={() =>
+            add.mutate(
+              { name: name.trim(), description: description.trim(), priority },
+              {
+                onSuccess: () => {
+                  setName("");
+                  setDescription("");
+                },
+              },
+            )
+          }
           disabled={add.isPending || !name.trim()}
         >
           {add.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Crear</Text>}
@@ -96,7 +94,15 @@ export default function ProjectsScreen() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <View style={[styles.card, { borderColor: tokens.border, backgroundColor: tokens.panel }]}>
-              <Pressable onPress={() => toggle.mutate({ id: item.id, status: item.status })} style={styles.cardMain}>
+              <Pressable
+                onPress={() =>
+                  toggle.mutate({
+                    id: item.id,
+                    patch: { status: item.status === "completado" ? "activo" : "completado" },
+                  })
+                }
+                style={styles.cardMain}
+              >
                 <View style={[styles.dot, item.status === "completado" && { backgroundColor: tokens.accent }]} />
                 <View style={styles.cardText}>
                   <Text style={[styles.cardTitle, { color: tokens.text }]}>{item.name}</Text>

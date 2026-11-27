@@ -1,5 +1,3 @@
-import { api, endpoints } from "../../infrastructure/api/client";
-
 export type SiteSettings = {
   name: string;
   tagline: string;
@@ -16,6 +14,4 @@ export type PreferencesInput = {
   avatar?: string;
 };
 
-export async function updatePreferences(input: PreferencesInput): Promise<{ ok: boolean; site: SiteSettings }> {
-  return api(endpoints.preferences, { method: "PUT", body: JSON.stringify(input) });
-}
+export type PreferencesResult = { ok: boolean; site: SiteSettings };

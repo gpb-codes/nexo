@@ -48,7 +48,15 @@ La versión web sigue activa y no se retira hasta alcanzar paridad funcional en 
 
 ### Móvil (`mobile/`)
 
-- Expo SDK 58, React Native 0.88, TypeScript, Expo Router.
+Arquitectura limpia aplicada:
+
+- `src/domain/`: entidades (`task`, `project`, `note`, `session`, `preferences`) e interfaces de repositorio.
+- `src/application/`: casos de uso, contenedor de dependencias y query keys.
+- `src/infrastructure/`: cliente HTTP, SecureStore, SQLite, repositorios concretos y outbox.
+- `src/presentation/`: hooks de TanStack Query y tokens de tema.
+- `app/`: pantallas Expo Router; dependen solo de hooks y tokens.
+
+Stack: Expo SDK 58, React Native 0.88, TypeScript, Expo Router.
 - TanStack Query, Zustand, expo-sqlite, SecureStore, cámara, notificaciones y Reanimated.
 - Login/registro con SecureStore; sesión verificada y logout.
 - Tareas, proyectos, notas, contactos y ajustes.

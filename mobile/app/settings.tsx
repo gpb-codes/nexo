@@ -9,28 +9,16 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, endpoints } from "../src/infrastructure/api/client";
-import { theme, palette } from "../src/theme/tokens";
-import { updatePreferences } from "../src/features/settings/api";
-
-type Me = {
-  ok: boolean;
-  user: {
-    displayName?: string;
-    theme?: string;
-    accent?: string;
-    site?: { name?: string; tagline?: string; description?: string };
-  };
-};
+import { theme, palette } from "../src/presentation/theme/tokens";
+import { useSession } from "../src/presentation/hooks/use-auth";
+import { useUpdatePreferences } from "../src/presentation/hooks/use-preferences";
 
 const ACCENTS = [palette.purple, palette.sky, "#10b981", "#f59e0b", "#ef4444"];
 
 export default function SettingsScreen() {
   const scheme = useColorScheme() ?? "dark";
   const tokens = theme[scheme];
-  const queryClient = useQueryClient();
-  const session = useQuery({ queryKey: ["session"], queryFn: () => api<Me>(endpoints.me) });
+  const session = useSession();
 
   const [siteName, setSiteName] = useState("Nexo");
   const [tagline, setTagline] = useState("");
@@ -40,7 +28,7 @@ export default function SettingsScreen() {
   const [mode, setMode] = useState<"claro" | "oscuro">(scheme === "light" ? "claro" : "oscuro");
 
   useEffect(() => {
-    const user = session.data?.user;
+    const user = session.data;
     if (!user) return;
     setSiteName(user.site?.name ?? "Nexo");
     setTagline(user.site?.tagline ?? "");
@@ -50,18 +38,7 @@ export default function SettingsScreen() {
     setMode(user.theme === "claro" ? "claro" : "oscuro");
   }, [session.data]);
 
-  const save = useMutation({
-    mutationFn: () =>
-      updatePreferences({
-        siteName: siteName.trim(),
-        siteTagline: tagline.trim(),
-        siteDescription: description.trim(),
-        displayName: displayName.trim() || null,
-        accent,
-        theme: mode,
-      }),
-    onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["session"] }),
-  });
+  const save = useUpdatePreferences();
 
   if (session.isLoading) return <ActivityIndicator color={tokens.accent} style={{ flex: 1 }} />;
 
@@ -97,7 +74,16 @@ export default function SettingsScreen() {
         ))}
       </View>
 
-      <Pressable style={[styles.button, { backgroundColor: tokens.accent }]} onPress={() => save.mutate()} disabled={save.isPending}>
+      <Pressable style={[styles.button, { backgroundColor: tokens.accent }]} onPress={() =>
+        save.mutate({
+          siteName: siteName.trim(),
+          siteTagline: tagline.trim(),
+          siteDescription: description.trim(),
+          displayName: displayName.trim() || null,
+          accent,
+          theme: mode,
+        })
+      } disabled={save.isPending}>
         {save.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Guardar cambios</Text>}
       </Pressable>
       {save.error instanceof Error && <Text style={styles.error}>{save.error.message}</Text>}

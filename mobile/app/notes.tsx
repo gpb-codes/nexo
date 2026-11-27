@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,10 +10,9 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { theme } from "../src/theme/tokens";
-import { createNote, deleteNote, getNote, listNotes } from "../src/features/notes/api";
-import type { NoteKind } from "../src/features/notes/types";
+import { theme } from "../src/presentation/theme/tokens";
+import { useCreateNote, useDeleteNote, useNote, useNotes } from "../src/presentation/hooks/use-notes";
+import type { NoteKind } from "../src/domain/entities/note";
 
 const FILTERS: Array<{ id: "todas" | NoteKind; label: string }> = [
   { id: "todas", label: "Todas" },
@@ -26,47 +25,48 @@ const FILTERS: Array<{ id: "todas" | NoteKind; label: string }> = [
 export default function NotesScreen() {
   const scheme = useColorScheme() ?? "dark";
   const tokens = theme[scheme];
-  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [filter, setFilter] = useState<"todas" | NoteKind>("todas");
+  const [detailId, setDetailId] = useState<string | null>(null);
 
-  const notes = useQuery({ queryKey: ["notes"], queryFn: listNotes });
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["notes"] });
+  const notes = useNotes();
+  const add = useCreateNote();
+  const remove = useDeleteNote();
+  const detail = useNote(detailId);
 
-  const add = useMutation({
-    mutationFn: () => createNote({ title: title.trim(), content: content.trim(), kind: "nota", source: "manual" }),
-    onSuccess: async () => {
-      setTitle("");
-      setContent("");
-      await invalidate();
-    },
-  });
-
-  const remove = useMutation({
-    mutationFn: deleteNote,
-    onSuccess: invalidate,
-  });
+  useEffect(() => {
+    if (detail.data) {
+      const note = detail.data;
+      Alert.alert(note.title, [note.content || "Sin contenido", note.contact?.phone || "", note.contact?.email || ""].filter(Boolean).join("\n"));
+      setDetailId(null);
+    }
+    if (detail.error) {
+      Alert.alert("Error", detail.error instanceof Error ? detail.error.message : "No se pudo abrir la nota.");
+      setDetailId(null);
+    }
+  }, [detail.data, detail.error]);
 
   const shown = (notes.data ?? []).filter((note) =>
     filter === "todas" ? true : filter === "nfc" ? note.source === "nfc" : note.kind === filter,
   );
-
-  const open = async (id: string) => {
-    try {
-      const note = await getNote(id);
-      Alert.alert(note.title, [note.content || "Sin contenido", note.contact?.phone || "", note.contact?.email || ""].filter(Boolean).join("\n"));
-    } catch (error) {
-      Alert.alert("Error", error instanceof Error ? error.message : "No se pudo abrir la nota.");
-    }
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: tokens.background }]}>
       <View style={styles.form}>
         <TextInput style={[styles.input, { borderColor: tokens.border, color: tokens.text, backgroundColor: tokens.panel }]} placeholder="Título de la nota" placeholderTextColor={tokens.muted} value={title} onChangeText={setTitle} />
         <TextInput style={[styles.input, styles.multiline, { borderColor: tokens.border, color: tokens.text, backgroundColor: tokens.panel }]} placeholder="Contenido" placeholderTextColor={tokens.muted} value={content} onChangeText={setContent} multiline />
-        <Pressable style={[styles.button, { backgroundColor: tokens.accent }]} onPress={() => add.mutate()} disabled={add.isPending || !title.trim()}>
+        <Pressable style={[styles.button, { backgroundColor: tokens.accent }]} onPress={() =>
+          add.mutate(
+            { title: title.trim(), content: content.trim(), kind: "nota", source: "manual" },
+            {
+              onSuccess: () => {
+                setTitle("");
+                setContent("");
+              },
+            },
+          )
+        } disabled={add.isPending || !title.trim()}>
           {add.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Guardar nota</Text>}
         </Pressable>
       </View>
@@ -92,7 +92,7 @@ export default function NotesScreen() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <View style={[styles.card, { borderColor: tokens.border, backgroundColor: tokens.panel }]}>
-              <Pressable onPress={() => open(item.id)} style={styles.cardMain}>
+              <Pressable onPress={() => setDetailId(item.id)} style={styles.cardMain}>
                 <Text style={[styles.kind, { color: tokens.sky }]}>{item.kind}</Text>
                 <Text style={[styles.cardTitle, { color: tokens.text }]}>{item.title}</Text>
                 <Text style={[styles.preview, { color: tokens.muted }]} numberOfLines={2}>{item.content || "Sin contenido"}</Text>
