@@ -25,6 +25,13 @@ La versión web sigue activa y no se retira hasta alcanzar paridad funcional en 
 
 ### Web (`unified-app/`)
 
+Arquitectura limpia aplicada en Functions:
+
+- `functions/_lib/domain/`: entidades, errores y validaciones puras.
+- `functions/_lib/application/`: casos de uso, contenedor de dependencias y obtención del usuario actual.
+- `functions/_lib/infrastructure/`: repositorios D1, seguridad de sesión y respuestas HTTP.
+- `functions/api/`: controladores delgados que parsean la petición, llaman casos de uso y formatean la respuesta.
+
 - Registro, login y logout reales; PBKDF2; sesiones opacas en D1; cookie HttpOnly para web.
 - Bearer token para clientes móviles: `/api/mobile/login`, `/api/mobile/register`; `Authorization: Bearer` soportado.
 - Tareas CRUD con categoría, fecha límite, prioridad, filtros, progreso y edición.
@@ -42,7 +49,11 @@ La versión web sigue activa y no se retira hasta alcanzar paridad funcional en 
 ### Segundo cerebro
 
 - Quartz original con grafo suave y estilos personalizados.
-- Next.js con 322 nodos y 718 conexiones.
+- Next.js con 322 nodos y 718 conexiones y capas limpias:
+  - `next-quartz/src/domain/`: entidades y contrato del repositorio de grafo.
+  - `next-quartz/src/application/`: caso de uso `loadGraph` y contenedor.
+  - `next-quartz/src/infrastructure/`: repositorio HTTP de `brain-graph.json`.
+  - `next-quartz/app/`: rutas y presentación.
 - Grafo JARVIS: HUD, nombres de archivo bajo los nodos, conexiones curvas, búsqueda, WASD/flechas y joystick digital.
 - Notas estáticas generadas desde `contentIndex.json`.
 

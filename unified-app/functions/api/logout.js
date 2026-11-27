@@ -1,23 +1,14 @@
-import { revokeSession, buildClearCookie, isSecureRequest } from "../_lib/auth.js";
-
-const jsonHeaders = (extra = {}) => ({
-  "Content-Type": "application/json",
-  ...extra,
-});
+import { useCases } from "../_lib/application/container.js";
+import { buildClearCookie, getRequestToken, isSecureRequest } from "../_lib/infrastructure/security/session.js";
+import { fail, json } from "../_lib/infrastructure/http/response.js";
 
 export async function onRequestPost(context) {
-  const { request, env } = context;
-  const secure = isSecureRequest(request);
   try {
-    await revokeSession(env, request);
-  } catch (e) { /* non-fatal */ }
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: {
-      ...jsonHeaders(),
-      "Set-Cookie": buildClearCookie(secure),
-    },
-  });
+    await useCases.auth.logout(context.env, getRequestToken(context.request));
+    return json({ ok: true }, 200, { "Set-Cookie": buildClearCookie(isSecureRequest(context.request)) });
+  } catch (error) {
+    return fail(error);
+  }
 }
 
 export async function onRequestGet(context) {

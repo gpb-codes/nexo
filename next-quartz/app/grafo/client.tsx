@@ -8,12 +8,11 @@ import { CSS2DObject, CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRe
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
+import { container as appContainer } from "../../src/application/container";
+import type { Graph, GraphNode } from "../../src/domain/entities/graph";
 
-type Node = { slug: string; title: string; tags: string[] };
-type Link = { source: string; target: string };
-type Graph = { version: number; updatedAt: string; nodes: Node[]; links: Link[] };
 type Move = { x: number; z: number };
-type NodeState = { value: number; base: number; opacity: number };
+type GraphNodeState = { value: number; base: number; opacity: number };
 
 const JARVIS_PALETTE = ["#7dd3fc", "#a78bfa", "#cbd5e1", "#60a5fa", "#e2e8f0", "#93c5fd"];
 
@@ -77,7 +76,7 @@ export default function GrafoClient() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const meshesRef = useRef<THREE.Mesh[]>([]);
-  const statesRef = useRef<NodeState[]>([]);
+  const statesRef = useRef<GraphNodeState[]>([]);
   const labelElsRef = useRef<HTMLElement[]>([]);
   const keysRef = useRef(new Set<string>());
   const moveRef = useRef<Move>({ x: 0, z: 0 });
@@ -95,7 +94,7 @@ export default function GrafoClient() {
 
     const load = async () => {
       if (!rootRef.current) return;
-      const data: Graph = await (await fetch("/brain-graph.json")).json();
+      const data: Graph = await appContainer.useCases.loadGraph.execute();
       if (cancelled || !rootRef.current) return;
 
       const container = rootRef.current;
@@ -160,7 +159,7 @@ export default function GrafoClient() {
 
       const positions = universePositions(data.nodes.length);
       const nodeIndex = new Map(data.nodes.map((n, i) => [n.slug, i]));
-      const states: NodeState[] = [];
+      const states: GraphNodeState[] = [];
       const labels: HTMLElement[] = [];
       const nodeGeometry = new THREE.SphereGeometry(1, 14, 10);
 
@@ -268,7 +267,7 @@ export default function GrafoClient() {
       };
       const onPointerDown = (event: PointerEvent) => {
         const hit = pick(event);
-        const node = hit?.userData.node as Node | undefined;
+        const node = hit?.userData.node as GraphNode | undefined;
         if (node) window.open(`/${node.slug}`, "_blank", "noopener");
       };
 
@@ -362,7 +361,7 @@ export default function GrafoClient() {
     const meshes = meshesRef.current;
     const states = statesRef.current;
     states.forEach((state, i) => {
-      const node = meshes[i]?.userData.node as Node | undefined;
+      const node = meshes[i]?.userData.node as GraphNode | undefined;
       const hit = !q || !node || node.title.toLowerCase().includes(q) || node.slug.toLowerCase().includes(q);
       const target = hit ? 1 : 0.08;
       animate(state, {
@@ -388,7 +387,7 @@ export default function GrafoClient() {
     moveRef.current = { x, z };
   };
 
-  const active = focus ? (meshesRef.current.find((m) => (m.userData.node as Node)?.slug === focus)?.userData.node as Node | undefined) : null;
+  const active = focus ? (meshesRef.current.find((m) => (m.userData.node as GraphNode)?.slug === focus)?.userData.node as GraphNode | undefined) : null;
 
   return (
     <div className="jarvis-shell">
