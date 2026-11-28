@@ -1,4 +1,5 @@
 import { ApiAiRepository } from "../infrastructure/repositories/ai-repository";
+import { ApiDocumentRepository } from "../infrastructure/repositories/document-repository";
 import { ApiNoteRepository } from "../infrastructure/repositories/note-repository";
 import { ApiPreferencesRepository } from "../infrastructure/repositories/preferences-repository";
 import { ApiProjectRepository } from "../infrastructure/repositories/project-repository";
@@ -6,6 +7,7 @@ import { ApiSessionRepository } from "../infrastructure/repositories/session-rep
 import { ApiTaskRepository } from "../infrastructure/repositories/task-repository";
 import { SqliteOutboxRepository } from "../infrastructure/repositories/outbox-repository";
 import { makeAiUseCases } from "./use-cases/ai";
+import { makeDocumentUseCases } from "./use-cases/documents";
 import { makeNoteUseCases } from "./use-cases/notes";
 import { makePreferencesUseCases } from "./use-cases/preferences";
 import { makeProjectUseCases } from "./use-cases/projects";
@@ -15,6 +17,7 @@ import { makeTaskUseCases } from "./use-cases/tasks";
 
 const taskRepository = new ApiTaskRepository();
 const projectRepository = new ApiProjectRepository();
+const documentRepository = new ApiDocumentRepository();
 const noteRepository = new ApiNoteRepository();
 const sessionRepository = new ApiSessionRepository();
 const preferencesRepository = new ApiPreferencesRepository();
@@ -26,6 +29,7 @@ export const container = {
     ai: makeAiUseCases(aiRepository),
     tasks: makeTaskUseCases(taskRepository),
     projects: makeProjectUseCases(projectRepository),
+    documents: makeDocumentUseCases(documentRepository),
     notes: makeNoteUseCases(noteRepository),
     session: makeSessionUseCases(sessionRepository),
     preferences: makePreferencesUseCases(preferencesRepository),

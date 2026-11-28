@@ -3,8 +3,10 @@ import { container } from "../../application/container";
 import { queryKeys } from "../../application/query-keys";
 import type { CreateTaskInput, UpdateTaskInput } from "../../domain/entities/task";
 
-const invalidate = (queryClient: ReturnType<typeof useQueryClient>) =>
+const invalidate = (queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: queryKeys.tasks });
+  queryClient.invalidateQueries({ queryKey: queryKeys.projects });
+};
 
 export function useTasks() {
   return useQuery({ queryKey: queryKeys.tasks, queryFn: () => container.useCases.tasks.list() });

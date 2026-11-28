@@ -85,3 +85,22 @@ export function clientId(value) {
   const v = optionalText(value, 80, "Client id");
   return v || null;
 }
+
+export function tags(value) {
+  if (value === undefined || value === null) return undefined;
+  if (!Array.isArray(value)) throw new ValidationError("Etiquetas inválidas.");
+  if (value.length > 8) throw new ValidationError("Máximo 8 etiquetas por tarea.");
+  const normalized = value
+    .map((item) => text(item, 24, "Etiqueta"))
+    .filter(Boolean)
+    .filter((item, index, all) => all.indexOf(item) === index);
+  return normalized;
+}
+
+export function projectRole(value, fallback) {
+  return oneOf(value, new Set(["owner", "editor", "viewer"]), "Rol", fallback);
+}
+
+export function documentStatus(value, fallback = "activo") {
+  return oneOf(value, new Set(["activo", "archivado"]), "Estado del documento", fallback);
+}

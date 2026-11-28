@@ -2,7 +2,7 @@ import type { AuthUser, LoginInput, RegisterInput, SessionResult } from "../../d
 import type { SessionRepository } from "../../domain/repositories/session-repository";
 import { api } from "../api/client";
 import { endpoints } from "../api/endpoints";
-import { clearSessionToken, setSessionToken } from "../storage/session-store";
+import { clearBiometricEnabled, clearSessionToken, setSessionToken } from "../storage/session-store";
 
 export class ApiSessionRepository implements SessionRepository {
   async login(input: LoginInput): Promise<SessionResult> {
@@ -30,6 +30,7 @@ export class ApiSessionRepository implements SessionRepository {
       // La revocación local continúa aunque falle la red.
     }
     await clearSessionToken();
+    await clearBiometricEnabled();
   }
 
   async me(): Promise<AuthUser> {

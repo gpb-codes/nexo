@@ -45,6 +45,9 @@ export class ApiTaskRepository implements TaskRepository {
         status: "pendiente",
         due_date: input.due_date ?? null,
         category: input.category ?? null,
+        project_id: input.project_id ?? null,
+        assignee_id: input.assignee_id ?? null,
+        tags: input.tags ?? [],
         created_at: created.created_at,
       });
       await removeTaskCache(clientId);
@@ -59,6 +62,9 @@ export class ApiTaskRepository implements TaskRepository {
         status: "pendiente",
         due_date: input.due_date ?? null,
         category: input.category ?? null,
+        project_id: input.project_id ?? null,
+        assignee_id: input.assignee_id ?? null,
+        tags: input.tags ?? [],
         created_at: new Date().toISOString(),
       });
     }

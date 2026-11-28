@@ -29,7 +29,13 @@
       "expo-sqlite",
       "expo-secure-store",
       "expo-camera",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Nexo usa Face ID para desbloquear tu sesión guardada en este dispositivo."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -9,6 +9,11 @@ export type Task = {
   status: TaskStatus;
   due_date?: string | null;
   category?: string | null;
+  project_id?: string | null;
+  project_name?: string | null;
+  assignee_id?: string | null;
+  assignee_name?: string | null;
+  tags?: string[];
   created_at: string;
   completed_at?: string | null;
 };
@@ -19,7 +24,15 @@ export type CreateTaskInput = {
   description?: string;
   category?: string;
   due_date?: string;
+  project_id?: string | null;
+  assignee_id?: string | null;
+  tags?: string[];
   clientId?: string;
 };
 
-export type UpdateTaskInput = Partial<Pick<Task, "title" | "description" | "priority" | "status" | "due_date" | "category">>;
+export type UpdateTaskInput = Partial<
+  Pick<
+    Task,
+    "title" | "description" | "priority" | "status" | "due_date" | "category" | "project_id" | "assignee_id" | "tags"
+  >
+>;

@@ -5,6 +5,8 @@ import { fail, ok, readJson } from "../_lib/infrastructure/http/response.js";
 export async function onRequestGet(context) {
   try {
     const user = await requireUser(context.env, context.request);
+    const id = new URL(context.request.url).searchParams.get("id");
+    if (id) return ok(await useCases.projects.get(context.env, user.id, id));
     return ok({ projects: await useCases.projects.list(context.env, user.id) });
   } catch (error) { return fail(error); }
 }

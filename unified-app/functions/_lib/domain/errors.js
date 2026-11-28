@@ -18,3 +18,6 @@ export class NotFoundError extends DomainError {
 export class ConflictError extends DomainError {
   constructor(message = "Conflicto.") { super(message, 409); this.name = "ConflictError"; }
 }
+export class ForbiddenError extends DomainError {
+  constructor(message = "No tienes permiso para esta acción.") { super(message, 403); this.name = "ForbiddenError"; }
+}
