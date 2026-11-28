@@ -213,7 +213,7 @@ Estado: código implementado y chequeado con `node --check`. Migración aplicada
 - Backend: `node --check` aprobado en repositorios, casos de uso y controladores nuevos.
 - D1 local: migraciones `0001`–`0009` aplicadas en `/tmp/nexo-d1` con `wrangler d1 execute --local`. `0002` reporta columna duplicada por deriva histórica conocida; `0009` aplicó correctamente.
 - Servidor local de validación: `wrangler pages dev public --local --persist-to /tmp/nexo-d1 --port 8788`.
-- APK: build local de depuración para instalación por USB; producción no tocada.
+- APK: build local de depuración para instalación por USB; producción no tocada. Se removió `expo-dev-client` para que el APK abra directamente la app y no el Dev Launcher que pide una URL de Metro.
 - Dispositivo de prueba detectado por USB: `2806ac560d26`.
 
 ### No hacer sin aprobación explícita
